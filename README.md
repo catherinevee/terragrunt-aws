@@ -9,7 +9,7 @@
 
 This repository contains Infrastructure as Code (IaC) for deploying and managing AWS infrastructure using Terraform and Terragrunt. The project follows best practices for managing multi-environment, multi-region AWS deployments and uses official Terraform Registry modules.
 
-## 📊 Architecture Diagrams
+## Architecture Diagrams
 
 - **[Complete Infrastructure Diagram](infrastructure-diagram.md)** - Comprehensive multi-region architecture
 - **[Simple Infrastructure Overview](simple-infrastructure-diagram.md)** - Core components and flow
@@ -17,7 +17,7 @@ This repository contains Infrastructure as Code (IaC) for deploying and managing
 
 All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open-source diagramming library that renders directly in GitHub.
 
-## 🚀 Features
+## Features
 
 - **Multi-environment support** (dev, staging, prod)
 - **Modular architecture** for reusable components using Terraform Registry modules
@@ -28,7 +28,7 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
 - **High availability** with multi-AZ deployments and auto-scaling
 - **Cost optimization** with lifecycle policies and intelligent tiering
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
@@ -70,19 +70,19 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
 └── README.md                      # This file
 ```
 
-## 🛠 Prerequisites
+## Prerequisites
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.6.0
 - [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/) >= 0.58.0
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with appropriate credentials
 - AWS IAM permissions to create and manage resources
 
-### 📋 Version Compatibility
-- **Terraform 1.6.0** + **Terragrunt 0.58.0** ✅ **Fully Compatible**
+### Version Compatibility
+- **Terraform 1.6.0** + **Terragrunt 0.58.0** - **Fully Compatible**
 - Both versions are tested and supported together
 - CI/CD pipelines use these exact versions for consistency
 
-## 🚀 Getting Started
+## Getting Started
 
 1. **Clone the repository**
    ```bash
@@ -132,7 +132,7 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
    terragrunt apply
    ```
 
-## 🧩 Modules
+## Modules
 
 All modules use official Terraform Registry modules as their foundation and are designed to be production-ready with comprehensive security, monitoring, and cost optimization features.
 
@@ -246,30 +246,30 @@ Monitoring and logging using `terraform-aws-modules/cloudwatch/aws`.
 - Anomaly detection
 - Synthetics canaries
 
-## 🔄 CI/CD Pipeline
+## CI/CD Pipeline
 
 This project includes automated CI/CD pipelines for infrastructure deployment and destruction:
 
-### 🚀 Deployment Pipeline
+### Deployment Pipeline
 The **Terraform CI/CD Pipeline** automatically:
-- ✅ **Format Check**: Validates Terraform code formatting
-- ✅ **Validation**: Validates Terraform configurations across all environments
-- ✅ **Planning**: Creates execution plans for all environments
-- ✅ **Deployment**: Deploys infrastructure across multiple regions
-- 🌍 **Multi-Region**: Deploys to dev (us-east-1), staging (us-west-2), prod (eu-west-1)
+- **Format Check**: Validates Terraform code formatting
+- **Validation**: Validates Terraform configurations across all environments
+- **Planning**: Creates execution plans for all environments
+- **Deployment**: Deploys infrastructure across multiple regions
+- **Multi-Region**: Deploys to dev (us-east-1), staging (us-west-2), prod (eu-west-1)
 
-### 🔥 Destroy Pipeline
+### Destroy Pipeline
 The **Terraform Destroy Pipeline** provides safe infrastructure destruction:
-- 🛡️ **Safety Confirmation**: Requires typing "DESTROY" to proceed
-- ✅ **Validation**: Validates infrastructure before destruction
-- 🔥 **Destruction**: Safely destroys all infrastructure
-- 🧹 **Cleanup**: Removes S3 buckets and DynamoDB tables
+- **Safety Confirmation**: Requires typing "DESTROY" to proceed
+- **Validation**: Validates infrastructure before destruction
+- **Destruction**: Safely destroys all infrastructure
+- **Cleanup**: Removes S3 buckets and DynamoDB tables
 
-### 📊 Pipeline Status
+### Pipeline Status
 - **Deployment Pipeline**: [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
 - **Destroy Pipeline**: [![Terraform Destroy Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml)
 
-### 🎮 Using the Pipelines
+### Using the Pipelines
 
 #### Deploy Infrastructure
 The deployment pipeline runs automatically on every push to the main branch:
@@ -307,7 +307,7 @@ gh run list --workflow="terraform-destroy.yml" --limit 5
 gh run view --log
 ```
 
-## 🔄 Development Workflow
+## Development Workflow
 
 1. **Development**
    - Create feature branches for changes
@@ -324,18 +324,18 @@ gh run view --log
    - CI/CD pipeline automatically deploys infrastructure
    - Verify the deployment using AWS console or CLI
 
-## 🔒 Security
+## Security
 
 - All resources are tagged with environment and owner information
 - IAM policies follow the principle of least privilege
 - Sensitive data is stored in AWS Secrets Manager or Parameter Store
 - Network traffic is encrypted in transit and at rest
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -343,6 +343,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📧 Contact
+## Contact
 
 For questions or support, please contact [Your Name] at [your.email@example.com].
