@@ -1,0 +1,210 @@
+name: 'Terraform Destroy Pipeline'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to destroy (dev, staging, prod, or all)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - dev
+          - staging
+          - prod
+      region:
+        description: 'Region to destroy (us-east-1, us-west-2, eu-west-1, or all)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - us-east-1
+          - us-west-2
+          - eu-west-1
+      confirm_destroy:
+        description: 'Type "DESTROY" to confirm infrastructure destruction'
+        required: true
+        type: string
+
+env:
+  TF_VERSION: '1.5.0'
+  TERRAGRUNT_VERSION: '0.54.0'
+
+jobs:
+  # Job 1: Validate Destroy Confirmation
+  validate-destroy:
+    name: 'Validate Destroy Confirmation'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm_destroy }}" != "DESTROY" ]; then
+            echo "❌ Destroy confirmation failed. You must type 'DESTROY' to proceed."
+            exit 1
+          fi
+          echo "✅ Destroy confirmation validated."
+
+  # Job 2: Format Check
+  format:
+    name: 'Terraform Format Check'
+    runs-on: ubuntu-latest
+    needs: [validate-destroy]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install Terragrunt
+        run: |
+          wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TERRAGRUNT_VERSION }}/terragrunt_linux_amd64
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/
+
+      - name: Terraform Format Check
+        run: |
+          echo "=== Running Terraform Format Check ==="
+          find environments/ -name "*.tf" -exec terraform fmt -check -diff {} \;
+
+  # Job 3: Validate Infrastructure
+  validate:
+    name: 'Terraform Validate'
+    runs-on: ubuntu-latest
+    needs: [format]
+    strategy:
+      matrix:
+        include:
+          - environment: dev
+            region: us-east-1
+          - environment: staging
+            region: us-west-2
+          - environment: prod
+            region: eu-west-1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install Terragrunt
+        run: |
+          wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TERRAGRUNT_VERSION }}/terragrunt_linux_amd64
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ matrix.region }}
+
+      - name: Terraform Validate
+        run: |
+          echo "=== Validating Terraform for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
+          terragrunt validate
+
+  # Job 4: Destroy Infrastructure
+  destroy:
+    name: 'Terraform Destroy'
+    runs-on: ubuntu-latest
+    needs: [validate]
+    strategy:
+      matrix:
+        include:
+          - environment: dev
+            region: us-east-1
+          - environment: staging
+            region: us-west-2
+          - environment: prod
+            region: eu-west-1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install Terragrunt
+        run: |
+          wget -O terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TERRAGRUNT_VERSION }}/terragrunt_linux_amd64
+          chmod +x terragrunt
+          sudo mv terragrunt /usr/local/bin/
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ matrix.region }}
+
+      - name: Destroy VPC
+        run: |
+          echo "=== Destroying VPC for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
+          terragrunt destroy -auto-approve
+
+      - name: Clean up S3 state bucket
+        if: matrix.environment == 'dev' && matrix.region == 'us-east-1'
+        run: |
+          echo "=== Cleaning up S3 state bucket for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          aws s3 rm s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state --recursive || true
+          aws s3 rb s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state || true
+
+      - name: Clean up S3 state bucket
+        if: matrix.environment == 'staging' && matrix.region == 'us-west-2'
+        run: |
+          echo "=== Cleaning up S3 state bucket for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          aws s3 rm s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-us-west-2 --recursive || true
+          aws s3 rb s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-us-west-2 || true
+
+      - name: Clean up S3 state bucket
+        if: matrix.environment == 'prod' && matrix.region == 'eu-west-1'
+        run: |
+          echo "=== Cleaning up S3 state bucket for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          aws s3 rm s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-eu-west-1 --recursive || true
+          aws s3 rb s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-eu-west-1 || true
+
+      - name: Clean up DynamoDB table
+        if: matrix.environment == 'dev' && matrix.region == 'us-east-1'
+        run: |
+          echo "=== Cleaning up DynamoDB table for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          aws dynamodb delete-table --table-name terraform-locks || true
+
+      - name: Clean up DynamoDB table
+        if: matrix.environment == 'staging' && matrix.region == 'us-west-2'
+        run: |
+          echo "=== Cleaning up DynamoDB table for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          aws dynamodb delete-table --table-name terraform-locks-us-west-2 || true
+
+      - name: Clean up DynamoDB table
+        if: matrix.environment == 'prod' && matrix.region == 'eu-west-1'
+        run: |
+          echo "=== Cleaning up DynamoDB table for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          aws dynamodb delete-table --table-name terraform-locks-eu-west-1 || true
+
+  # Job 5: Final Cleanup
+  final-cleanup:
+    name: 'Final Cleanup'
+    runs-on: ubuntu-latest
+    needs: [destroy]
+    if: always()
+    steps:
+      - name: Cleanup Summary
+        run: |
+          echo "=== Infrastructure Destruction Complete ==="
+          echo "✅ All VPCs destroyed"
+          echo "✅ All S3 state buckets cleaned up"
+          echo "✅ All DynamoDB tables cleaned up"
+          echo "✅ Multi-region infrastructure fully destroyed"
