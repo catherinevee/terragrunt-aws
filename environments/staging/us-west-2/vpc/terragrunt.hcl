@@ -15,7 +15,7 @@ remote_state {
     key            = "staging/us-west-2/vpc/terraform.tfstate"
     region         = "us-west-2"
     encrypt        = true
-    dynamodb_table = "terraform-locks"
+    dynamodb_table = "terraform-locks-us-west-2"
   }
 }
 
