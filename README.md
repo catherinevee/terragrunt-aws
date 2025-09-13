@@ -1,5 +1,12 @@
 # Terragrunt AWS Infrastructure as Code
 
+[![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
+[![Terraform Destroy Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml)
+[![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terraform.io/)
+[![Terragrunt](https://img.shields.io/badge/terragrunt-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terragrunt.gruntwork.io/)
+[![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=flat&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 This repository contains Infrastructure as Code (IaC) for deploying and managing AWS infrastructure using Terraform and Terragrunt. The project follows best practices for managing multi-environment, multi-region AWS deployments and uses official Terraform Registry modules.
 
 ## 🚀 Features
@@ -229,7 +236,68 @@ Monitoring and logging using `terraform-aws-modules/cloudwatch/aws`.
 - Anomaly detection
 - Synthetics canaries
 
-## 🔄 Workflow
+## 🔄 CI/CD Pipeline
+
+This project includes automated CI/CD pipelines for infrastructure deployment and destruction:
+
+### 🚀 Deployment Pipeline
+The **Terraform CI/CD Pipeline** automatically:
+- ✅ **Format Check**: Validates Terraform code formatting
+- ✅ **Validation**: Validates Terraform configurations across all environments
+- ✅ **Planning**: Creates execution plans for all environments
+- ✅ **Deployment**: Deploys infrastructure across multiple regions
+- 🌍 **Multi-Region**: Deploys to dev (us-east-1), staging (us-west-2), prod (eu-west-1)
+
+### 🔥 Destroy Pipeline
+The **Terraform Destroy Pipeline** provides safe infrastructure destruction:
+- 🛡️ **Safety Confirmation**: Requires typing "DESTROY" to proceed
+- ✅ **Validation**: Validates infrastructure before destruction
+- 🔥 **Destruction**: Safely destroys all infrastructure
+- 🧹 **Cleanup**: Removes S3 buckets and DynamoDB tables
+
+### 📊 Pipeline Status
+- **Deployment Pipeline**: [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
+- **Destroy Pipeline**: [![Terraform Destroy Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml)
+
+### 🎮 Using the Pipelines
+
+#### Deploy Infrastructure
+The deployment pipeline runs automatically on every push to the main branch:
+```bash
+# Push changes to trigger deployment
+git push origin main
+```
+
+#### Destroy Infrastructure
+The destroy pipeline requires manual triggering for safety:
+```bash
+# Trigger destroy pipeline via GitHub CLI
+gh workflow run "Terraform Destroy Pipeline" \
+  --field environment="all" \
+  --field region="all" \
+  --field confirm_destroy="DESTROY"
+
+# Or trigger via GitHub Web UI:
+# 1. Go to Actions tab
+# 2. Select "Terraform Destroy Pipeline"
+# 3. Click "Run workflow"
+# 4. Fill in the required fields
+# 5. Click "Run workflow"
+```
+
+#### Monitor Pipeline Status
+```bash
+# Check deployment pipeline status
+gh run list --workflow="terraform.yml" --limit 5
+
+# Check destroy pipeline status
+gh run list --workflow="terraform-destroy.yml" --limit 5
+
+# View pipeline logs
+gh run view --log
+```
+
+## 🔄 Development Workflow
 
 1. **Development**
    - Create feature branches for changes
@@ -243,8 +311,8 @@ Monitoring and logging using `terraform-aws-modules/cloudwatch/aws`.
 
 3. **Deployment**
    - Merge changes to the main branch
-   - Run `terragrunt apply` in the target environment
-   - Verify the deployment
+   - CI/CD pipeline automatically deploys infrastructure
+   - Verify the deployment using AWS console or CLI
 
 ## 🔒 Security
 
@@ -267,5 +335,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-For questions or support, please contact [Your Name] at [your.email@example.com].#   A W S   C r e d e n t i a l s   F i x e d  
+For questions or support, please contact [Your Name] at [your.email@example.com].#   A W S   C r e d e n t i a l s   F i x e d 
+ 
  
