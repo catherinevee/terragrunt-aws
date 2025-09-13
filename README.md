@@ -9,6 +9,14 @@
 
 This repository contains Infrastructure as Code (IaC) for deploying and managing AWS infrastructure using Terraform and Terragrunt. The project follows best practices for managing multi-environment, multi-region AWS deployments and uses official Terraform Registry modules.
 
+## 📊 Architecture Diagrams
+
+- **[Complete Infrastructure Diagram](infrastructure-diagram.md)** - Comprehensive multi-region architecture
+- **[Simple Infrastructure Overview](simple-infrastructure-diagram.md)** - Core components and flow
+- **[Network Topology](network-topology-diagram.md)** - VPC, subnets, and security architecture
+
+All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open-source diagramming library that renders directly in GitHub.
+
 ## 🚀 Features
 
 - **Multi-environment support** (dev, staging, prod)
