@@ -11,7 +11,7 @@ include "root" {
 remote_state {
   backend = "s3"
   config = {
-    bucket         = "terragrunt-${get_aws_account_id()}-state"
+    bucket         = "terragrunt-${get_aws_account_id()}-state-us-west-2"
     key            = "staging/us-west-2/vpc/terraform.tfstate"
     region         = "us-west-2"
     encrypt        = true
