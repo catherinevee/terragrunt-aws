@@ -1,4 +1,4 @@
-# VPC configuration for dev environment in us-east-1
+# VPC configuration for dev environment in us-east-1 - CI/CD Test
 
 # Include the root configuration
 include "root" {
