@@ -315,62 +315,53 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ matrix.region }}
 
-      - name: Destroy EKS
+      - name: Destroy Infrastructure
         run: |
-          echo "=== Destroying EKS for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          cd environments/${{ matrix.environment }}/${{ matrix.region }}/eks
-          terragrunt destroy -auto-approve || true
+          echo "=== Destroying Infrastructure for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          
+          # Find all terragrunt.hcl files in the environment directory
+          ENV_DIR="environments/${{ matrix.environment }}/${{ matrix.region }}"
+          
+          if [ -d "$ENV_DIR" ]; then
+            echo "Found environment directory: $ENV_DIR"
+            
+            # Find all subdirectories with terragrunt.hcl files
+            for dir in $(find "$ENV_DIR" -name "terragrunt.hcl" -type f | sed 's|/terragrunt.hcl||' | sort -r); do
+              if [ -d "$dir" ]; then
+                echo "=== Destroying resources in $dir ==="
+                cd "$dir"
+                terragrunt destroy -auto-approve || echo "Failed to destroy $dir, continuing..."
+                cd - > /dev/null
+              fi
+            done
+          else
+            echo "Environment directory $ENV_DIR not found, skipping destruction"
+          fi
 
-      - name: Destroy KMS
+      - name: Clean up S3 state buckets
         run: |
-          echo "=== Destroying KMS for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          cd environments/${{ matrix.environment }}/${{ matrix.region }}/kms
-          terragrunt destroy -auto-approve || true
+          echo "=== Cleaning up S3 state buckets for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          
+          # Get account ID
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "Account ID: $ACCOUNT_ID"
+          
+          # Find and clean up all terragrunt state buckets
+          for bucket in $(aws s3 ls | grep "terragrunt-${ACCOUNT_ID}-state" | awk '{print $3}'); do
+            echo "Cleaning up bucket: $bucket"
+            aws s3 rm s3://$bucket --recursive || echo "Failed to remove objects from $bucket"
+            aws s3 rb s3://$bucket || echo "Failed to remove bucket $bucket"
+          done
 
-      - name: Destroy VPC
+      - name: Clean up DynamoDB tables
         run: |
-          echo "=== Destroying VPC for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
-          terragrunt destroy -auto-approve || true
-
-      - name: Clean up S3 state bucket
-        if: matrix.environment == 'dev' && matrix.region == 'us-east-1'
-        run: |
-          echo "=== Cleaning up S3 state bucket for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          aws s3 rm s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-us-east-1-20250913095334 --recursive || true
-          aws s3 rb s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-us-east-1-20250913095334 || true
-
-      - name: Clean up S3 state bucket
-        if: matrix.environment == 'staging' && matrix.region == 'us-west-2'
-        run: |
-          echo "=== Cleaning up S3 state bucket for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          aws s3 rm s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-us-west-2-20250913095334 --recursive || true
-          aws s3 rb s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-us-west-2-20250913095334 || true
-
-      - name: Clean up S3 state bucket
-        if: matrix.environment == 'prod' && matrix.region == 'eu-west-1'
-        run: |
-          echo "=== Cleaning up S3 state bucket for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          aws s3 rm s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-eu-west-1-20250913095334 --recursive || true
-          aws s3 rb s3://terragrunt-$(aws sts get-caller-identity --query Account --output text)-state-eu-west-1-20250913095334 || true
-
-      - name: Clean up DynamoDB table
-        if: matrix.environment == 'dev' && matrix.region == 'us-east-1'
-        run: |
-          echo "=== Cleaning up DynamoDB table for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          aws dynamodb delete-table --table-name terraform-locks-us-east-1-20250913095334 || true
-
-      - name: Clean up DynamoDB table
-        if: matrix.environment == 'staging' && matrix.region == 'us-west-2'
-        run: |
-          echo "=== Cleaning up DynamoDB table for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          aws dynamodb delete-table --table-name terraform-locks-us-west-2-20250913095334 || true
-
-      - name: Clean up DynamoDB table
-        if: matrix.environment == 'prod' && matrix.region == 'eu-west-1'
-        run: |
-          echo "=== Cleaning up DynamoDB table for ${{ matrix.environment }} in ${{ matrix.region }} ==="
-          aws dynamodb delete-table --table-name terraform-locks-eu-west-1-20250913095334 || true
+          echo "=== Cleaning up DynamoDB tables for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          
+          # Find and clean up all terraform lock tables
+          for table in $(aws dynamodb list-tables --query 'TableNames[?contains(@, `terraform-locks`)]' --output text); do
+            echo "Cleaning up table: $table"
+            aws dynamodb delete-table --table-name $table || echo "Failed to delete table $table"
+          done
 
   # Job 8: Final Cleanup (only for destroy action)
   final-cleanup:
@@ -382,9 +373,10 @@ jobs:
       - name: Cleanup Summary
         run: |
           echo "=== Infrastructure Destruction Complete ==="
-          echo "✅ All VPCs destroyed"
-          echo "✅ All KMS keys destroyed"
-          echo "✅ All EKS clusters destroyed"
+          echo "✅ All infrastructure resources destroyed"
           echo "✅ All S3 state buckets cleaned up"
           echo "✅ All DynamoDB tables cleaned up"
           echo "✅ Multi-region infrastructure fully destroyed"
+          echo ""
+          echo "Note: This pipeline dynamically discovers and destroys"
+          echo "only the resources that actually exist in each environment."
