@@ -34,18 +34,15 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
 .
 ├── environments/                    # Environment-specific configurations
 │   ├── dev/                        # Development environment
-│   │   ├── terragrunt.hcl         # Dev environment config
 │   │   └── us-east-1/             # Region-specific configurations
 │   │       ├── vpc/               # VPC component
 │   │       ├── eks/               # EKS cluster
 │   │       └── kms/               # KMS keys
 │   ├── staging/                    # Staging environment
-│   │   ├── terragrunt.hcl         # Staging environment config
-│   │   └── us-east-1/             # Region-specific configurations
+│   │   └── us-west-2/             # Region-specific configurations
 │   │       └── vpc/               # VPC component
 │   └── prod/                       # Production environment
-│       ├── terragrunt.hcl         # Prod environment config
-│       └── us-east-1/             # Region-specific configurations
+│       └── eu-west-1/             # Region-specific configurations
 │           └── vpc/               # VPC component
 ├── modules/                        # Reusable Terraform modules
 │   ├── networking/                # Networking modules
@@ -348,6 +345,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-For questions or support, please contact [Your Name] at [your.email@example.com].#   A W S   C r e d e n t i a l s   F i x e d 
- 
- 
+For questions or support, please contact [Your Name] at [your.email@example.com].
