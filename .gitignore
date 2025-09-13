@@ -8,6 +8,7 @@
 
 # Terragrunt
 .terragrunt-cache/
+.tg-cache/
 terragrunt.hcl.bak
 
 # IDE

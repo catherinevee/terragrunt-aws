@@ -64,12 +64,6 @@ output "nat_public_ips" {
   value       = module.vpc.nat_public_ips
 }
 
-# VPC Endpoints
-output "vpc_endpoint_s3_id" {
-  description = "The ID of VPC endpoint for S3"
-  value       = module.vpc.vpc_endpoint_s3_id
-}
-
 # Security Groups
 output "default_security_group_id" {
   description = "The ID of the security group created by default on VPC creation"
@@ -94,23 +88,3 @@ output "azs" {
   value       = module.vpc.azs
 }
 
-# VPC Endpoints
-output "vpc_endpoint_ssm_id" {
-  description = "The ID of VPC endpoint for SSM"
-  value       = module.vpc.vpc_endpoint_ssm_id
-}
-
-output "vpc_endpoint_ssm_network_interface_ids" {
-  description = "One or more network interfaces for the VPC Endpoint for SSM"
-  value       = module.vpc.vpc_endpoint_ssm_network_interface_ids
-}
-
-output "vpc_endpoint_ec2messages_id" {
-  description = "The ID of VPC endpoint for EC2 Messages"
-  value       = module.vpc.vpc_endpoint_ec2messages_id
-}
-
-output "vpc_endpoint_ssmmessages_id" {
-  description = "The ID of VPC endpoint for SSM Messages"
-  value       = module.vpc.vpc_endpoint_ssmmessages_id
-}

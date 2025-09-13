@@ -54,26 +54,8 @@ module "vpc" {
   dhcp_options_domain_name         = var.dhcp_domain_name
   dhcp_options_domain_name_servers = ["AmazonProvidedDNS"]
 
-  # VPC Endpoints
-  enable_s3_endpoint = true
-
   # Default security group - restrict all traffic by default
   manage_default_security_group  = true
   default_security_group_ingress = []
   default_security_group_egress  = []
-
-  # VPC endpoint for SSM
-  enable_ssm_endpoint              = true
-  ssm_endpoint_private_dns_enabled = true
-  ssm_endpoint_security_group_ids  = []
-
-  # VPC endpoint for EC2 Messages
-  enable_ec2messages_endpoint              = true
-  ec2messages_endpoint_private_dns_enabled = true
-  ec2messages_endpoint_security_group_ids  = []
-
-  # VPC endpoint for SSM Messages
-  enable_ssmmessages_endpoint              = true
-  ssmmessages_endpoint_private_dns_enabled = true
-  ssmmessages_endpoint_security_group_ids  = []
 }

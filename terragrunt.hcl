@@ -1,6 +1,9 @@
 # Terragrunt configuration for the entire repository
 # This file is loaded for all environments and regions
 
+# Configure Terragrunt to use a shorter cache directory to avoid Windows path length issues
+# This is set via environment variable or terragrunt command line
+
 # Configure Terragrunt to use DynamoDB for state locking
 
 # Generate provider configuration for all modules
