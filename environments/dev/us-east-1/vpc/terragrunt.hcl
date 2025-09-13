@@ -1,4 +1,5 @@
-# VPC configuration for dev environment in us-east-1 - CI/CD Test
+# VPC configuration for dev environment in us-east-1
+# Stale locks cleared - ready for deployment - CI/CD Test
 
 # Include the root configuration
 include "root" {
