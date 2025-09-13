@@ -139,13 +139,7 @@ jobs:
         run: |
           echo "=== Planning Infrastructure for ${{ matrix.environment }} ==="
           cd environments/${{ matrix.environment }}/us-east-1/vpc
-          terragrunt plan -out=tfplan
-
-      - name: Upload Plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan-${{ matrix.environment }}
-          path: environments/${{ matrix.environment }}/us-east-1/vpc/tfplan
+          terragrunt plan
 
   # Job 5: Deploy Infrastructure (only on main branch)
   deploy:
@@ -178,25 +172,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Download Plan
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-plan-${{ matrix.environment }}
-
-      - name: Terraform Apply
+      - name: Deploy VPC
         run: |
-          echo "=== Deploying Infrastructure for ${{ matrix.environment }} ==="
+          echo "=== Deploying VPC for ${{ matrix.environment }} ==="
           cd environments/${{ matrix.environment }}/us-east-1/vpc
           terragrunt apply -auto-approve
-
-  # Job 6: Cleanup (only on main branch)
-  cleanup:
-    name: 'Cleanup Old Artifacts'
-    runs-on: ubuntu-latest
-    needs: [deploy]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - name: Delete Artifacts
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: terraform-plan-*
