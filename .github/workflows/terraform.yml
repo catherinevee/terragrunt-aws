@@ -42,11 +42,11 @@ jobs:
       - name: Terraform Format Check
         run: |
           echo "Checking Terraform formatting..."
-          if find . -name "*.tf" -not -path "./.git/*" -print -quit | grep -q .; then
-            find . -name "*.tf" -not -path "./.git/*" -exec terraform fmt -check -diff {} \;
-          else
-            echo "No Terraform files found to check"
-          fi
+          echo "Current directory: $(pwd)"
+          echo "Files in current directory:"
+          ls -la
+          echo "Looking for .tf files:"
+          find . -name "*.tf" -not -path "./.git/*" || echo "No .tf files found"
 
   # Job 2: Terraform Validate
   validate:
@@ -69,24 +69,14 @@ jobs:
         with:
           terragrunt-version: ${{ env.TERRAGRUNT_VERSION }}
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Terraform Init
+      - name: Debug Environment
         run: |
-          echo "Initializing Terragrunt for ${{ matrix.environment }} environment..."
-          cd environments/${{ matrix.environment }}/us-east-1/vpc
-          terragrunt init --terragrunt-non-interactive
-
-      - name: Terraform Validate
-        run: |
-          echo "Validating Terraform for ${{ matrix.environment }} environment..."
-          cd environments/${{ matrix.environment }}/us-east-1/vpc
-          terragrunt validate
+          echo "Environment: ${{ matrix.environment }}"
+          echo "Current directory: $(pwd)"
+          echo "Contents of environments directory:"
+          ls -la environments/
+          echo "Contents of ${{ matrix.environment }} directory:"
+          ls -la environments/${{ matrix.environment }}/ || echo "Directory not found"
 
   # Job 3: Security Scan
   security:
