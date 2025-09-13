@@ -1,0 +1,80 @@
+name: 'Deploy to Production'
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'environments/prod/**'
+      - 'modules/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+        - prod
+
+env:
+  TF_VERSION: '1.5.0'
+  TERRAGRUNT_VERSION: '0.50.0'
+  AWS_REGION: 'us-east-1'
+  ENVIRONMENT: 'prod'
+
+jobs:
+  deploy:
+    name: 'Deploy to ${{ env.ENVIRONMENT }}'
+    runs-on: ubuntu-latest
+    environment: ${{ env.ENVIRONMENT }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Setup Terragrunt
+        uses: gruntwork-io/setup-terragrunt@v0.0.3
+        with:
+          terragrunt-version: ${{ env.TERRAGRUNT_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy VPC
+        run: |
+          cd environments/${{ env.ENVIRONMENT }}/us-east-1/vpc
+          terragrunt init --terragrunt-non-interactive
+          terragrunt plan -out=tfplan
+          terragrunt apply -auto-approve
+
+      - name: Deploy KMS
+        run: |
+          cd environments/${{ env.ENVIRONMENT }}/us-east-1/kms
+          terragrunt init --terragrunt-non-interactive
+          terragrunt plan -out=tfplan
+          terragrunt apply -auto-approve
+
+      - name: Deploy EKS
+        run: |
+          cd environments/${{ env.ENVIRONMENT }}/us-east-1/eks
+          terragrunt init --terragrunt-non-interactive
+          terragrunt plan -out=tfplan
+          terragrunt apply -auto-approve
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.ENVIRONMENT }}-cluster
+
+      - name: Verify deployment
+        run: |
+          kubectl get nodes
+          kubectl get pods --all-namespaces
