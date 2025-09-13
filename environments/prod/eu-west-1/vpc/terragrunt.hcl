@@ -49,8 +49,8 @@ inputs = {
   ]
   
   # NAT Gateway configuration
-  enable_nat_gateway     = true
-  single_nat_gateway     = true  # Use single NAT Gateway to avoid EIP limit issues
+  enable_nat_gateway     = false  # Disable NAT Gateway to avoid EIP limit issues
+  single_nat_gateway     = false
   one_nat_gateway_per_az = false
   
   # VPC Endpoints
