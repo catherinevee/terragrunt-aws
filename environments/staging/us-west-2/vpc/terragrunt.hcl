@@ -50,8 +50,8 @@ inputs = {
   
   # NAT Gateway configuration
   enable_nat_gateway     = true
-  single_nat_gateway     = false  # Use multiple NAT Gateways for better availability in staging
-  one_nat_gateway_per_az = true
+  single_nat_gateway     = true  # Use single NAT Gateway to avoid EIP limit issues
+  one_nat_gateway_per_az = false
   
   # VPC Endpoints
   enable_s3_endpoint = true
