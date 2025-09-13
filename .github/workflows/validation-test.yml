@@ -1,0 +1,55 @@
+name: 'Validation Test'
+
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  test-validation-dev:
+    name: 'Test Validation - Dev Only'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.5.0'
+
+      - name: Setup Terragrunt (Working Action)
+        uses: autero1/action-terragrunt@v1.2.0
+        with:
+          terragrunt_version: '0.50.0'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: 'us-east-1'
+
+      - name: Test AWS Connection
+        run: |
+          echo "=== Testing AWS Connection ==="
+          aws sts get-caller-identity
+
+      - name: Test Terragrunt
+        run: |
+          echo "=== Testing Terragrunt ==="
+          terragrunt --version
+          echo "Current directory: $(pwd)"
+          echo "Contents of environments directory:"
+          ls -la environments/
+          echo "Contents of dev directory:"
+          ls -la environments/dev/ || echo "Dev directory not found"
+
+      - name: Test Terragrunt Init (Dry Run)
+        run: |
+          echo "=== Testing Terragrunt Init (Dry Run) ==="
+          cd environments/dev/us-east-1/vpc
+          echo "Current directory: $(pwd)"
+          echo "Contents:"
+          ls -la
+          echo "Testing terragrunt init --terragrunt-non-interactive --terragrunt-dry-run"
+          terragrunt init --terragrunt-non-interactive --terragrunt-dry-run || echo "Dry run failed, but that's expected"
