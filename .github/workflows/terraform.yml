@@ -85,7 +85,9 @@ jobs:
         run: |
           echo "=== Initializing Terragrunt for ${{ matrix.environment }} in ${{ matrix.region }} ==="
           cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
-          terragrunt init --terragrunt-non-interactive --terragrunt-tf-args="-reconfigure"
+          # Clear any existing cache and state
+          rm -rf .terragrunt-cache .tg-cache .terraform
+          terragrunt init --terragrunt-non-interactive
 
       - name: Terraform Validate
         run: |
