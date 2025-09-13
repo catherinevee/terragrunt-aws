@@ -1,0 +1,33 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfplan
+.terraform/
+.terraform.lock.hcl
+
+# Terragrunt
+.terragrunt-cache/
+terragrunt.hcl.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test directories
+test/
+temp/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local

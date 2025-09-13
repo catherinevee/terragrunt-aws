@@ -5,13 +5,6 @@ include "root" {
   path = find_in_parent_folders()
 }
 
-# Include the environment configuration
-include "env" {
-  path           = find_in_parent_folders("env.hcl")
-  expose         = true
-  merge_strategy = "no_merge"
-}
-
 # Configure the S3 backend for this component
 remote_state {
   backend = "s3"

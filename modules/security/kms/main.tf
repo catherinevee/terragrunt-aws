@@ -2,7 +2,7 @@
 
 module "kms" {
   source  = "terraform-aws-modules/kms/aws"
-  version = "~> 2.0"
+  version = "2.2.1"
 
   # KMS Key
   key = {

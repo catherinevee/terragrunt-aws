@@ -5,12 +5,7 @@ include "root" {
   path = find_in_parent_folders()
 }
 
-# Include the environment configuration
-include "env" {
-  path           = find_in_parent_folders("env.hcl")
-  expose         = true
-  merge_strategy = "no_merge"
-}
+# Environment configuration is included in the root terragrunt.hcl
 
 # Configure the S3 backend for this component
 remote_state {

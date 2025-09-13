@@ -10,15 +10,12 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region = "${get_env("AWS_REGION", "us-east-1")}"
-  
+
   # Assume role for cross-account access if needed
   # assume_role {
   #   role_arn = "arn:aws:iam::${get_aws_account_id()}:role/OrganizationAccountAccessRole"
   # }
-  
-  # Enable AWS provider version 5.0 or later
-  version = ">= 5.0.0"
-  
+
   # Default tags to be applied to all resources
   default_tags {
     tags = {
@@ -26,18 +23,6 @@ provider "aws" {
       ManagedBy   = "terragrunt"
       Repository  = "terragrunt-aws"
       Terraform   = "true"
-    }
-  }
-}
-
-# Required provider versions
-terraform {
-  required_version = ">= 1.0.0"
-  
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
     }
   }
 }
