@@ -6,11 +6,11 @@ module "cloudfront" {
 
   # CloudFront Distribution
   distribution = {
-    enabled = true
-    is_ipv6_enabled = var.is_ipv6_enabled
-    price_class = var.price_class
-    http_version = var.http_version
-    comment = var.comment
+    enabled             = true
+    is_ipv6_enabled     = var.is_ipv6_enabled
+    price_class         = var.price_class
+    http_version        = var.http_version
+    comment             = var.comment
     default_root_object = var.default_root_object
 
     # Origins
@@ -55,11 +55,11 @@ module "cloudfront" {
 resource "aws_cloudfront_distribution" "additional" {
   for_each = var.additional_distributions
 
-  enabled = each.value.enabled
-  is_ipv6_enabled = each.value.is_ipv6_enabled
-  price_class = each.value.price_class
-  http_version = each.value.http_version
-  comment = each.value.comment
+  enabled             = each.value.enabled
+  is_ipv6_enabled     = each.value.is_ipv6_enabled
+  price_class         = each.value.price_class
+  http_version        = each.value.http_version
+  comment             = each.value.comment
   default_root_object = each.value.default_root_object
 
   # Origins
@@ -110,9 +110,9 @@ resource "aws_cloudfront_distribution" "additional" {
   # Viewer certificate
   viewer_certificate {
     cloudfront_default_certificate = each.value.viewer_certificate.cloudfront_default_certificate
-    acm_certificate_arn           = each.value.viewer_certificate.acm_certificate_arn
-    ssl_support_method            = each.value.viewer_certificate.ssl_support_method
-    minimum_protocol_version      = each.value.viewer_certificate.minimum_protocol_version
+    acm_certificate_arn            = each.value.viewer_certificate.acm_certificate_arn
+    ssl_support_method             = each.value.viewer_certificate.ssl_support_method
+    minimum_protocol_version       = each.value.viewer_certificate.minimum_protocol_version
   }
 
   # Aliases

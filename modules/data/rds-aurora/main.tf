@@ -11,13 +11,13 @@ module "rds_aurora" {
   engine_mode    = var.engine_mode
 
   # Database configuration
-  database_name = var.database_name
+  database_name   = var.database_name
   master_username = var.master_username
   master_password = var.master_password
 
   # Instance configuration
   instance_class = var.instance_class
-  instances = var.instances
+  instances      = var.instances
 
   # VPC configuration
   vpc_id               = var.vpc_id
@@ -26,16 +26,16 @@ module "rds_aurora" {
   security_group_rules = var.security_group_rules
 
   # Backup configuration
-  backup_retention_period = var.backup_retention_period
-  preferred_backup_window = var.preferred_backup_window
-  copy_tags_to_snapshot   = var.copy_tags_to_snapshot
-  skip_final_snapshot     = var.skip_final_snapshot
+  backup_retention_period   = var.backup_retention_period
+  preferred_backup_window   = var.preferred_backup_window
+  copy_tags_to_snapshot     = var.copy_tags_to_snapshot
+  skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.final_snapshot_identifier
 
   # Monitoring configuration
-  monitoring_interval = var.monitoring_interval
-  monitoring_role_arn = var.monitoring_role_arn
-  performance_insights_enabled = var.performance_insights_enabled
+  monitoring_interval                   = var.monitoring_interval
+  monitoring_role_arn                   = var.monitoring_role_arn
+  performance_insights_enabled          = var.performance_insights_enabled
   performance_insights_retention_period = var.performance_insights_retention_period
 
   # Encryption configuration
@@ -43,14 +43,14 @@ module "rds_aurora" {
   kms_key_id        = var.kms_key_id
 
   # Maintenance configuration
-  auto_minor_version_upgrade = var.auto_minor_version_upgrade
+  auto_minor_version_upgrade   = var.auto_minor_version_upgrade
   preferred_maintenance_window = var.preferred_maintenance_window
 
   # Deletion protection
   deletion_protection = var.deletion_protection
 
   # Global cluster configuration
-  global_cluster_identifier = var.global_cluster_identifier
+  global_cluster_identifier        = var.global_cluster_identifier
   global_cluster_member_identifier = var.global_cluster_member_identifier
 
   # Serverless v2 configuration
@@ -121,7 +121,7 @@ resource "aws_rds_cluster_instance" "additional" {
   monitoring_interval = each.value.monitoring_interval
   monitoring_role_arn = each.value.monitoring_role_arn
 
-  performance_insights_enabled = each.value.performance_insights_enabled
+  performance_insights_enabled          = each.value.performance_insights_enabled
   performance_insights_retention_period = each.value.performance_insights_retention_period
 
   tags = merge(

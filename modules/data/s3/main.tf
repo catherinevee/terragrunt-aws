@@ -7,13 +7,13 @@ module "s3_bucket" {
   bucket = "${var.environment}-${var.name}-${random_string.bucket_suffix.result}"
 
   # Bucket configuration
-  force_destroy = var.force_destroy
-  object_lock_enabled = var.object_lock_enabled
+  force_destroy             = var.force_destroy
+  object_lock_enabled       = var.object_lock_enabled
   object_lock_configuration = var.object_lock_configuration
 
   # Versioning
   versioning = {
-    enabled = var.versioning_enabled
+    enabled    = var.versioning_enabled
     mfa_delete = var.mfa_delete_enabled
   }
 
@@ -81,9 +81,9 @@ resource "aws_s3_bucket" "additional" {
 
 resource "random_string" "additional_bucket_suffix" {
   for_each = var.additional_buckets
-  length  = 8
-  special = false
-  upper   = false
+  length   = 8
+  special  = false
+  upper    = false
 }
 
 # S3 bucket policies

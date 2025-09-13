@@ -55,18 +55,18 @@ variable "instance_class" {
 variable "instances" {
   description = "Map of Aurora instances to create"
   type = map(object({
-    instance_class = string
-    publicly_accessible = bool
-    monitoring_interval = number
-    performance_insights_enabled = bool
+    instance_class                        = string
+    publicly_accessible                   = bool
+    monitoring_interval                   = number
+    performance_insights_enabled          = bool
     performance_insights_retention_period = number
   }))
   default = {
     one = {
-      instance_class = "db.r6g.large"
-      publicly_accessible = false
-      monitoring_interval = 0
-      performance_insights_enabled = false
+      instance_class                        = "db.r6g.large"
+      publicly_accessible                   = false
+      monitoring_interval                   = 0
+      performance_insights_enabled          = false
       performance_insights_retention_period = 7
     }
   }
@@ -230,12 +230,12 @@ variable "additional_cluster_parameter_groups" {
 variable "additional_instances" {
   description = "Map of additional cluster instances to create"
   type = map(object({
-    instance_class = string
-    engine = string
-    engine_version = string
-    monitoring_interval = number
-    monitoring_role_arn = string
-    performance_insights_enabled = bool
+    instance_class                        = string
+    engine                                = string
+    engine_version                        = string
+    monitoring_interval                   = number
+    monitoring_role_arn                   = string
+    performance_insights_enabled          = bool
     performance_insights_retention_period = number
   }))
   default = {}

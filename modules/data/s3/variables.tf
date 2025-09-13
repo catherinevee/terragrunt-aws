@@ -53,7 +53,7 @@ variable "server_side_encryption_configuration" {
   type = object({
     rule = object({
       apply_server_side_encryption_by_default = object({
-        sse_algorithm = string
+        sse_algorithm     = string
         kms_master_key_id = string
       })
       bucket_key_enabled = bool
@@ -62,7 +62,7 @@ variable "server_side_encryption_configuration" {
   default = {
     rule = {
       apply_server_side_encryption_by_default = {
-        sse_algorithm = "AES256"
+        sse_algorithm     = "AES256"
         kms_master_key_id = null
       }
       bucket_key_enabled = true
@@ -97,12 +97,12 @@ variable "restrict_public_buckets" {
 variable "lifecycle_rules" {
   description = "List of lifecycle rules"
   type = list(object({
-    id     = string
-    status = string
+    id      = string
+    status  = string
     enabled = bool
     filter = object({
       prefix = string
-      tags = map(string)
+      tags   = map(string)
     })
     expiration = object({
       days = number
@@ -128,10 +128,10 @@ variable "intelligent_tiering" {
     status = string
     filter = object({
       prefix = string
-      tags = map(string)
+      tags   = map(string)
     })
     tiering = object({
-      archive_access_tier_days = number
+      archive_access_tier_days      = number
       deep_archive_access_tier_days = number
     })
   }))
@@ -156,13 +156,13 @@ variable "replication_configuration" {
       status = string
       filter = object({
         prefix = string
-        tags = map(string)
+        tags   = map(string)
       })
       destination = object({
-        bucket        = string
-        storage_class = string
+        bucket             = string
+        storage_class      = string
         replica_kms_key_id = string
-        account_id    = string
+        account_id         = string
         access_control_translation = object({
           owner = string
         })
@@ -180,9 +180,9 @@ variable "notification" {
   type = object({
     lambda_functions = list(object({
       lambda_function_arn = string
-      events = list(string)
-      filter_prefix = string
-      filter_suffix = string
+      events              = list(string)
+      filter_prefix       = string
+      filter_suffix       = string
     }))
     sqs = list(object({
       queue_arn     = string
@@ -205,7 +205,7 @@ variable "website" {
   type = object({
     index_document = string
     error_document = string
-    routing_rules = string
+    routing_rules  = string
   })
   default = null
 }
@@ -230,8 +230,8 @@ variable "bucket_policies" {
 
 variable "additional_buckets" {
   description = "Map of additional S3 buckets to create"
-  type        = map(object({
-    force_destroy = bool
+  type = map(object({
+    force_destroy      = bool
     versioning_enabled = bool
   }))
   default = {}

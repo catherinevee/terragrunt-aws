@@ -57,10 +57,10 @@ variable "key_policy" {
 variable "grants" {
   description = "Map of KMS grants to create"
   type = map(object({
-    name = string
-    key_id = string
+    name              = string
+    key_id            = string
     grantee_principal = string
-    operations = list(string)
+    operations        = list(string)
     constraints = object({
       encryption_context_equals = map(string)
       encryption_context_subset = map(string)
@@ -72,11 +72,11 @@ variable "grants" {
 variable "additional_keys" {
   description = "Map of additional KMS keys to create"
   type = map(object({
-    description = string
+    description             = string
     deletion_window_in_days = number
-    enable_key_rotation = bool
-    policy = string
-    multi_region = bool
+    enable_key_rotation     = bool
+    policy                  = string
+    multi_region            = bool
   }))
   default = {}
 }
@@ -92,9 +92,9 @@ variable "additional_aliases" {
 variable "additional_grants" {
   description = "Map of additional KMS grants to create"
   type = map(object({
-    key_id = string
+    key_id            = string
     grantee_principal = string
-    operations = list(string)
+    operations        = list(string)
     constraints = object({
       encryption_context_equals = map(string)
       encryption_context_subset = map(string)
@@ -106,9 +106,9 @@ variable "additional_grants" {
 variable "additional_replica_keys" {
   description = "Map of additional KMS replica keys to create"
   type = map(object({
-    description = string
+    description     = string
     primary_key_arn = string
-    policy = string
+    policy          = string
   }))
   default = {}
 }
@@ -116,11 +116,11 @@ variable "additional_replica_keys" {
 variable "additional_external_keys" {
   description = "Map of additional KMS external keys to create"
   type = map(object({
-    description = string
+    description             = string
     deletion_window_in_days = number
-    policy = string
-    key_material_base64 = string
-    valid_to = string
+    policy                  = string
+    key_material_base64     = string
+    valid_to                = string
   }))
   default = {}
 }

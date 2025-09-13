@@ -134,15 +134,15 @@ variable "viewer_certificate" {
   description = "Viewer certificate configuration for the distribution"
   type = object({
     cloudfront_default_certificate = bool
-    acm_certificate_arn           = string
-    ssl_support_method            = string
-    minimum_protocol_version      = string
+    acm_certificate_arn            = string
+    ssl_support_method             = string
+    minimum_protocol_version       = string
   })
   default = {
     cloudfront_default_certificate = true
-    acm_certificate_arn           = ""
-    ssl_support_method            = ""
-    minimum_protocol_version      = ""
+    acm_certificate_arn            = ""
+    ssl_support_method             = ""
+    minimum_protocol_version       = ""
   }
 }
 
@@ -171,11 +171,11 @@ variable "aliases" {
 variable "additional_distributions" {
   description = "Map of additional CloudFront distributions to create"
   type = map(object({
-    enabled = bool
-    is_ipv6_enabled = bool
-    price_class = string
-    http_version = string
-    comment = string
+    enabled             = bool
+    is_ipv6_enabled     = bool
+    price_class         = string
+    http_version        = string
+    comment             = string
     default_root_object = string
     origins = list(object({
       domain_name = string
@@ -210,9 +210,9 @@ variable "additional_distributions" {
     })
     viewer_certificate = object({
       cloudfront_default_certificate = bool
-      acm_certificate_arn           = string
-      ssl_support_method            = string
-      minimum_protocol_version      = string
+      acm_certificate_arn            = string
+      ssl_support_method             = string
+      minimum_protocol_version       = string
     })
     aliases = list(string)
   }))

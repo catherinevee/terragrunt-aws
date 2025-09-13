@@ -7,9 +7,9 @@ module "eks" {
   cluster_name    = "${var.environment}-${var.name}"
   cluster_version = var.kubernetes_version
 
-  vpc_id                         = var.vpc_id
-  subnet_ids                     = var.subnet_ids
-  cluster_endpoint_public_access = var.cluster_endpoint_public_access
+  vpc_id                          = var.vpc_id
+  subnet_ids                      = var.subnet_ids
+  cluster_endpoint_public_access  = var.cluster_endpoint_public_access
   cluster_endpoint_private_access = var.cluster_endpoint_private_access
 
   # EKS Managed Node Groups
@@ -25,20 +25,20 @@ module "eks" {
   cluster_addons = var.cluster_addons
 
   # KMS key for EKS cluster encryption
-  create_kms_key = var.create_kms_key
+  create_kms_key                  = var.create_kms_key
   kms_key_deletion_window_in_days = var.kms_key_deletion_window_in_days
-  kms_key_enable_default_policy = var.kms_key_enable_default_policy
+  kms_key_enable_default_policy   = var.kms_key_enable_default_policy
 
   # CloudWatch log group
-  create_cloudwatch_log_group = var.create_cloudwatch_log_group
+  create_cloudwatch_log_group            = var.create_cloudwatch_log_group
   cloudwatch_log_group_retention_in_days = var.cloudwatch_log_group_retention_in_days
 
   # Cluster security group
-  create_cluster_security_group = var.create_cluster_security_group
+  create_cluster_security_group           = var.create_cluster_security_group
   cluster_security_group_additional_rules = var.cluster_security_group_additional_rules
 
   # Node security group
-  create_node_security_group = var.create_node_security_group
+  create_node_security_group           = var.create_node_security_group
   node_security_group_additional_rules = var.node_security_group_additional_rules
 
   # Tags
@@ -88,8 +88,8 @@ module "eks" {
 resource "aws_eks_addon" "additional_addons" {
   for_each = var.additional_addons
 
-  cluster_name = module.eks.cluster_name
-  addon_name   = each.key
+  cluster_name  = module.eks.cluster_name
+  addon_name    = each.key
   addon_version = each.value.version
 
   resolve_conflicts = each.value.resolve_conflicts
@@ -114,7 +114,7 @@ resource "aws_eks_identity_provider_config" "oidc" {
     groups_claim                  = each.value.groups_claim
     groups_prefix                 = each.value.groups_prefix
     identity_provider_config_name = each.value.identity_provider_config_name
-    issuer_url                   = each.value.issuer_url
+    issuer_url                    = each.value.issuer_url
     required_claims               = each.value.required_claims
     username_claim                = each.value.username_claim
     username_prefix               = each.value.username_prefix

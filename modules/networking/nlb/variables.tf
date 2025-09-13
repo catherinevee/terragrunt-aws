@@ -130,10 +130,10 @@ variable "health_check_grace_period_seconds" {
 variable "additional_listener_rules" {
   description = "Map of additional listener rules"
   type = map(object({
-    priority = number
-    action_type = string
+    priority         = number
+    action_type      = string
     target_group_arn = string
-    condition_field = string
+    condition_field  = string
     condition_values = list(string)
   }))
   default = {}

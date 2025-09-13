@@ -136,16 +136,16 @@ variable "node_security_group_additional_rules" {
 variable "eks_managed_node_groups" {
   description = "Map of EKS managed node group definitions to create"
   type = map(object({
-    name = string
+    name           = string
     instance_types = list(string)
     capacity_type  = string
-    min_size      = number
-    max_size      = number
-    desired_size  = number
-    disk_size     = number
-    ami_type      = string
-    platform      = string
-    labels = map(string)
+    min_size       = number
+    max_size       = number
+    desired_size   = number
+    disk_size      = number
+    ami_type       = string
+    platform       = string
+    labels         = map(string)
     taints = list(object({
       key    = string
       value  = string
@@ -203,7 +203,7 @@ variable "cluster_access_entries" {
     policy_associations = list(object({
       policy_arn = string
       access_scope = object({
-        type = string
+        type       = string
         namespaces = list(string)
       })
     }))
@@ -221,7 +221,7 @@ variable "node_groups" {
     disk_size     = number
     ami_type      = string
     platform      = string
-    labels = map(string)
+    labels        = map(string)
     taints = list(object({
       key    = string
       value  = string
@@ -241,7 +241,7 @@ variable "self_managed_node_groups" {
     disk_size     = number
     ami_id        = string
     platform      = string
-    labels = map(string)
+    labels        = map(string)
     taints = list(object({
       key    = string
       value  = string
@@ -312,7 +312,7 @@ variable "self_managed_node_group_defaults" {
 variable "additional_addons" {
   description = "Map of additional EKS addons to install"
   type = map(object({
-    version            = string
+    version           = string
     resolve_conflicts = string
     preserve          = bool
   }))
@@ -326,7 +326,7 @@ variable "oidc_identity_providers" {
     groups_claim                  = string
     groups_prefix                 = string
     identity_provider_config_name = string
-    issuer_url                   = string
+    issuer_url                    = string
     required_claims               = map(string)
     username_claim                = string
     username_prefix               = string

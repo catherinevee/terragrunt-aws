@@ -17,9 +17,9 @@ module "iam" {
   policies = var.policies
 
   # IAM Policy Attachments
-  user_policy_attachments = var.user_policy_attachments
+  user_policy_attachments  = var.user_policy_attachments
   group_policy_attachments = var.group_policy_attachments
-  role_policy_attachments = var.role_policy_attachments
+  role_policy_attachments  = var.role_policy_attachments
 
   # IAM Group Memberships
   group_memberships = var.group_memberships
@@ -140,7 +140,7 @@ resource "aws_iam_policy_attachment" "additional" {
 resource "aws_iam_user_group_membership" "additional" {
   for_each = var.additional_group_memberships
 
-  user = each.value.user
+  user   = each.value.user
   groups = each.value.groups
 }
 
@@ -164,19 +164,19 @@ resource "aws_iam_instance_profile" "additional" {
 resource "aws_iam_access_key" "additional" {
   for_each = var.additional_access_keys
 
-  user = each.value.user
+  user    = each.value.user
   pgp_key = each.value.pgp_key
-  status = each.value.status
+  status  = each.value.status
 }
 
 # IAM User Login Profiles
 resource "aws_iam_user_login_profile" "additional" {
   for_each = var.additional_login_profiles
 
-  user = each.value.user
-  pgp_key = each.value.pgp_key
+  user                    = each.value.user
+  pgp_key                 = each.value.pgp_key
   password_reset_required = each.value.password_reset_required
-  password_length = each.value.password_length
+  password_length         = each.value.password_length
 }
 
 # IAM Service Specific Credentials
@@ -184,8 +184,8 @@ resource "aws_iam_service_specific_credential" "additional" {
   for_each = var.additional_service_credentials
 
   service_name = each.value.service_name
-  user_name = each.value.user_name
-  status = each.value.status
+  user_name    = each.value.user_name
+  status       = each.value.status
 }
 
 # IAM Virtual MFA Devices
@@ -193,7 +193,7 @@ resource "aws_iam_virtual_mfa_device" "additional" {
   for_each = var.additional_virtual_mfa_devices
 
   virtual_mfa_device_name = each.key
-  path = each.value.path
+  path                    = each.value.path
 
   tags = merge(
     var.common_tags,

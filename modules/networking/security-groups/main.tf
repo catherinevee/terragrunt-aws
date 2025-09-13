@@ -9,18 +9,18 @@ module "security_groups" {
   vpc_id      = var.vpc_id
 
   # Ingress rules
-  ingress_with_cidr_blocks = var.ingress_with_cidr_blocks
+  ingress_with_cidr_blocks              = var.ingress_with_cidr_blocks
   ingress_with_source_security_group_id = var.ingress_with_source_security_group_id
-  ingress_with_self = var.ingress_with_self
+  ingress_with_self                     = var.ingress_with_self
 
   # Egress rules
-  egress_with_cidr_blocks = var.egress_with_cidr_blocks
+  egress_with_cidr_blocks              = var.egress_with_cidr_blocks
   egress_with_source_security_group_id = var.egress_with_source_security_group_id
-  egress_with_self = var.egress_with_self
+  egress_with_self                     = var.egress_with_self
 
   # Additional rules
   computed_ingress_with_source_security_group_id = var.computed_ingress_with_source_security_group_id
-  computed_egress_with_source_security_group_id = var.computed_egress_with_source_security_group_id
+  computed_egress_with_source_security_group_id  = var.computed_egress_with_source_security_group_id
 
   # Tags
   tags = merge(

@@ -6,11 +6,11 @@ module "kms" {
 
   # KMS Key
   key = {
-    description = var.description
+    description             = var.description
     deletion_window_in_days = var.deletion_window_in_days
-    enable_key_rotation = var.enable_key_rotation
-    policy = var.policy
-    multi_region = var.multi_region
+    enable_key_rotation     = var.enable_key_rotation
+    policy                  = var.policy
+    multi_region            = var.multi_region
   }
 
   # KMS Alias
@@ -40,7 +40,7 @@ resource "aws_kms_key" "additional" {
   deletion_window_in_days = each.value.deletion_window_in_days
   enable_key_rotation     = each.value.enable_key_rotation
   policy                  = each.value.policy
-  multi_region           = each.value.multi_region
+  multi_region            = each.value.multi_region
 
   tags = merge(
     var.common_tags,
@@ -65,15 +65,15 @@ resource "aws_kms_grant" "additional" {
   key_id            = each.value.key_id
   grantee_principal = each.value.grantee_principal
   operations        = each.value.operations
-  constraints = each.value.constraints
+  constraints       = each.value.constraints
 }
 
 resource "aws_kms_replica_key" "additional" {
   for_each = var.additional_replica_keys
 
-  description = each.value.description
+  description     = each.value.description
   primary_key_arn = each.value.primary_key_arn
-  policy = each.value.policy
+  policy          = each.value.policy
 
   tags = merge(
     var.common_tags,
@@ -87,11 +87,11 @@ resource "aws_kms_replica_key" "additional" {
 resource "aws_kms_external_key" "additional" {
   for_each = var.additional_external_keys
 
-  description = each.value.description
+  description             = each.value.description
   deletion_window_in_days = each.value.deletion_window_in_days
-  policy = each.value.policy
-  key_material_base64 = each.value.key_material_base64
-  valid_to = each.value.valid_to
+  policy                  = each.value.policy
+  key_material_base64     = each.value.key_material_base64
+  valid_to                = each.value.valid_to
 
   tags = merge(
     var.common_tags,
