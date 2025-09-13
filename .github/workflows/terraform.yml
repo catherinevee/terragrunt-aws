@@ -54,6 +54,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
+        region: [us-east-1, us-west-2, eu-west-1]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,18 +74,18 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
 
       - name: Terraform Init
         run: |
-          echo "=== Initializing Terragrunt for ${{ matrix.environment }} ==="
-          cd environments/${{ matrix.environment }}/us-east-1/vpc
+          echo "=== Initializing Terragrunt for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
           terragrunt init --terragrunt-non-interactive
 
       - name: Terraform Validate
         run: |
-          echo "=== Validating Terraform for ${{ matrix.environment }} ==="
-          cd environments/${{ matrix.environment }}/us-east-1/vpc
+          echo "=== Validating Terraform for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
           terragrunt validate
 
   # Job 3: Security Scan
@@ -113,6 +114,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
+        region: [us-east-1, us-west-2, eu-west-1]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -133,15 +135,15 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
 
       - name: Terraform Plan
         run: |
-          echo "=== Planning Infrastructure for ${{ matrix.environment }} ==="
-          cd environments/${{ matrix.environment }}/us-east-1/vpc
+          echo "=== Planning Infrastructure for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
           terragrunt plan
 
-  # Job 5: Deploy Infrastructure (only on main branch)
+  # Job 5: Deploy Infrastructure (only on main branch) - Different regions
   deploy:
     name: 'Deploy Infrastructure'
     runs-on: ubuntu-latest
@@ -150,6 +152,7 @@ jobs:
     strategy:
       matrix:
         environment: [dev, staging, prod]
+        region: [us-east-1, us-west-2, eu-west-1]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -170,10 +173,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ matrix.region }}
 
       - name: Deploy VPC
         run: |
-          echo "=== Deploying VPC for ${{ matrix.environment }} ==="
-          cd environments/${{ matrix.environment }}/us-east-1/vpc
+          echo "=== Deploying VPC for ${{ matrix.environment }} in ${{ matrix.region }} ==="
+          cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
           terragrunt apply -auto-approve
