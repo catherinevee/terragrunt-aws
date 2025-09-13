@@ -87,6 +87,8 @@ jobs:
           cd environments/${{ matrix.environment }}/${{ matrix.region }}/vpc
           # Clear any existing cache and state
           rm -rf .terragrunt-cache .tg-cache .terraform
+          # Use a unique cache directory for each run
+          export TERRAGRUNT_DOWNLOAD=".tg-cache-$(date +%s)"
           terragrunt init --terragrunt-non-interactive
 
       - name: Terraform Validate
