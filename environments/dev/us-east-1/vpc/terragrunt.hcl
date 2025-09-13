@@ -10,11 +10,11 @@ include "root" {
 remote_state {
   backend = "s3"
   config = {
-    bucket         = "terragrunt-${get_aws_account_id()}-state"
+    bucket         = "terragrunt-${get_aws_account_id()}-state-20250913095334"
     key            = "dev/us-east-1/vpc/terraform.tfstate"
     region         = "us-east-1"
     encrypt        = true
-    dynamodb_table = "terraform-locks"
+    dynamodb_table = "terraform-locks-20250913095334"
   }
 }
 
