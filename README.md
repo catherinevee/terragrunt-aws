@@ -1,7 +1,6 @@
 # Terragrunt AWS Infrastructure as Code
 
 [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
-[![Terraform Destroy Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml)
 [![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terraform.io/)
 [![Terragrunt](https://img.shields.io/badge/terragrunt-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terragrunt.gruntwork.io/)
 [![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=flat&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
@@ -96,26 +95,12 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
    - Environment variables: `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
    - AWS credentials file: `~/.aws/credentials`
 
-3. **Initialize the backend**
-   Before applying any configurations, you need to create the S3 bucket and DynamoDB table for state management:
-   ```bash
-   # Create S3 bucket for state storage
-   aws s3api create-bucket \
-     --bucket terragrunt-$(aws sts get-caller-identity --query Account --output text)-state \
-     --region us-east-1
-   
-   # Enable versioning
-   aws s3api put-bucket-versioning \
-     --bucket terragrunt-$(aws sts get-caller-identity --query Account --output text)-state \
-     --versioning-configuration Status=Enabled
-   
-   # Create DynamoDB table for state locking
-   aws dynamodb create-table \
-     --table-name terraform-locks \
-     --attribute-definitions AttributeName=LockID,AttributeType=S \
-     --key-schema AttributeName=LockID,KeyType=HASH \
-     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
-   ```
+3. **Backend Configuration**
+   The backend configuration is managed by individual environment terragrunt.hcl files:
+   - Each environment uses region-specific S3 buckets with unique names
+   - DynamoDB tables are region-specific for state locking
+   - Backend configuration is automatically handled by Terragrunt
+   - No manual S3 bucket or DynamoDB table creation required
 
 4. **Deploy the infrastructure**
    ```bash
@@ -248,62 +233,66 @@ Monitoring and logging using `terraform-aws-modules/cloudwatch/aws`.
 
 ## CI/CD Pipeline
 
-This project includes automated CI/CD pipelines for infrastructure deployment and destruction:
+This project includes a **consolidated CI/CD pipeline** for infrastructure deployment and destruction:
 
-### Deployment Pipeline
-The **Terraform CI/CD Pipeline** automatically:
+### Consolidated Pipeline
+The **Terraform CI/CD Pipeline** provides:
 - **Format Check**: Validates Terraform code formatting
 - **Validation**: Validates Terraform configurations across all environments
 - **Planning**: Creates execution plans for all environments
 - **Deployment**: Deploys infrastructure across multiple regions
-- **Multi-Region**: Deploys to dev (us-east-1), staging (us-west-2), prod (eu-west-1)
-
-### Destroy Pipeline
-The **Terraform Destroy Pipeline** provides safe infrastructure destruction:
-- **Safety Confirmation**: Requires typing "DESTROY" to proceed
-- **Validation**: Validates infrastructure before destruction
-- **Destruction**: Safely destroys all infrastructure
-- **Cleanup**: Removes S3 buckets and DynamoDB tables
+- **Destruction**: Safely destroys infrastructure with confirmation
+- **Multi-Region**: Supports dev (us-east-1), staging (us-west-2), prod (eu-west-1)
 
 ### Pipeline Status
-- **Deployment Pipeline**: [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
-- **Destroy Pipeline**: [![Terraform Destroy Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform-destroy.yml)
+- **Terraform CI/CD Pipeline**: [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
 
-### Using the Pipelines
+### Using the Pipeline
 
 #### Deploy Infrastructure
-The deployment pipeline runs automatically on every push to the main branch:
+The deployment pipeline runs automatically on every push to the main branch, or can be triggered manually:
+
+**Automatic Deployment:**
 ```bash
 # Push changes to trigger deployment
 git push origin main
 ```
 
+**Manual Deployment:**
+```bash
+# Deploy to specific environment and region
+gh workflow run terraform.yml --ref main -f action=deploy -f environment=dev -f region=us-east-1
+
+# Deploy to all environments
+gh workflow run terraform.yml --ref main -f action=deploy -f environment=all -f region=all
+```
+
 #### Destroy Infrastructure
 The destroy pipeline requires manual triggering for safety:
 ```bash
-# Trigger destroy pipeline via GitHub CLI
-gh workflow run "Terraform Destroy Pipeline" \
-  --field environment="all" \
-  --field region="all" \
-  --field confirm_destroy="DESTROY"
+# Destroy specific environment
+gh workflow run terraform.yml --ref main -f action=destroy -f environment=dev -f region=us-east-1 -f confirm_destroy=DESTROY
 
-# Or trigger via GitHub Web UI:
-# 1. Go to Actions tab
-# 2. Select "Terraform Destroy Pipeline"
-# 3. Click "Run workflow"
-# 4. Fill in the required fields
-# 5. Click "Run workflow"
+# Destroy all infrastructure
+gh workflow run terraform.yml --ref main -f action=destroy -f environment=all -f region=all -f confirm_destroy=DESTROY
+```
+
+#### Validate Only
+Run validation across environments without deploying:
+```bash
+# Run validation across all environments
+gh workflow run terraform.yml --ref main -f action=validate-only -f environment=all -f region=all
 ```
 
 #### Monitor Pipeline Status
 ```bash
-# Check deployment pipeline status
+# Check pipeline status
 gh run list --workflow="terraform.yml" --limit 5
 
-# Check destroy pipeline status
-gh run list --workflow="terraform-destroy.yml" --limit 5
+# View specific run logs
+gh run view <run-id> --log
 
-# View pipeline logs
+# View latest run logs
 gh run view --log
 ```
 
