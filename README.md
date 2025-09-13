@@ -67,10 +67,15 @@ This repository contains Infrastructure as Code (IaC) for deploying and managing
 
 ## 🛠 Prerequisites
 
-- [Terraform](https://www.terraform.io/downloads.html) >= 1.5.0
-- [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/) >= 0.50.0
+- [Terraform](https://www.terraform.io/downloads.html) >= 1.6.0
+- [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/) >= 0.58.0
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with appropriate credentials
 - AWS IAM permissions to create and manage resources
+
+### 📋 Version Compatibility
+- **Terraform 1.6.0** + **Terragrunt 0.58.0** ✅ **Fully Compatible**
+- Both versions are tested and supported together
+- CI/CD pipelines use these exact versions for consistency
 
 ## 🚀 Getting Started
 
