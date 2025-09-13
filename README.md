@@ -267,4 +267,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-For questions or support, please contact [Your Name] at [your.email@example.com].
+For questions or support, please contact [Your Name] at [your.email@example.com].#   A W S   C r e d e n t i a l s   F i x e d  
+ 
