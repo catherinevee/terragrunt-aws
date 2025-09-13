@@ -41,7 +41,12 @@ jobs:
 
       - name: Terraform Format Check
         run: |
-          find . -name "*.tf" -not -path "./.git/*" -exec terraform fmt -check -diff {} \;
+          echo "Checking Terraform formatting..."
+          if find . -name "*.tf" -not -path "./.git/*" -print -quit | grep -q .; then
+            find . -name "*.tf" -not -path "./.git/*" -exec terraform fmt -check -diff {} \;
+          else
+            echo "No Terraform files found to check"
+          fi
 
   # Job 2: Terraform Validate
   validate:
@@ -73,11 +78,13 @@ jobs:
 
       - name: Terraform Init
         run: |
+          echo "Initializing Terragrunt for ${{ matrix.environment }} environment..."
           cd environments/${{ matrix.environment }}/us-east-1/vpc
           terragrunt init --terragrunt-non-interactive
 
       - name: Terraform Validate
         run: |
+          echo "Validating Terraform for ${{ matrix.environment }} environment..."
           cd environments/${{ matrix.environment }}/us-east-1/vpc
           terragrunt validate
 
