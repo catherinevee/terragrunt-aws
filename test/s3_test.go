@@ -15,7 +15,7 @@ func TestS3Module(t *testing.T) {
 	// Get the AWS region from environment variable or use default
 	awsRegion := os.Getenv("AWS_DEFAULT_REGION")
 	if awsRegion == "" {
-		awsRegion = "us-east-2"
+		awsRegion = "us-west-1"
 	}
 
 	// Generate a unique bucket name

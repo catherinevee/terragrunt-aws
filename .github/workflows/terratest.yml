@@ -37,9 +37,10 @@ on:
       region:
         description: 'AWS region to test in'
         required: true
-        default: 'us-east-2'
+        default: 'us-west-1'
         type: choice
         options:
+          - us-west-1
           - us-east-2
           - us-west-2
           - us-east-1
@@ -49,7 +50,7 @@ env:
   TF_VERSION: '1.6.0'
   TERRAGRUNT_VERSION: '0.58.0'
   GO_VERSION: '1.21'
-  AWS_REGION: 'us-east-2'
+  AWS_REGION: 'us-west-1'
   TERRATEST_DIR: './test'
 
 jobs:
@@ -195,13 +196,13 @@ jobs:
       matrix:
         include:
           - environment: test
-            region: us-east-2
+            region: us-west-1
             test_name: VPC
           - environment: test
-            region: us-east-2
+            region: us-west-1
             test_name: S3
           - environment: test
-            region: us-east-2
+            region: us-west-1
             test_name: SecurityGroups
     steps:
       - name: Checkout
