@@ -17,7 +17,7 @@ func TestVPCModule(t *testing.T) {
 	// Temporarily rename versions.tf to avoid backend conflict
 	versionsFile := "../modules/vpc/versions.tf"
 	versionsBackup := "../modules/vpc/versions.tf.backup"
-	
+
 	// Backup the original versions.tf
 	err := os.Rename(versionsFile, versionsBackup)
 	if err != nil {
