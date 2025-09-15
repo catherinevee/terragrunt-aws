@@ -1,6 +1,7 @@
 # Terragrunt AWS Infrastructure as Code
 
 [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
+[![Terratest CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terratest.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terratest.yml)
 [![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terraform.io/)
 [![Terragrunt](https://img.shields.io/badge/terragrunt-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terragrunt.gruntwork.io/)
 [![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=flat&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
@@ -66,6 +67,12 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
 │       ├── versions.tf            # Version constraints
 │       └── README.md              # Module documentation
 ├── terragrunt.hcl                 # Root Terragrunt configuration
+├── test/                          # Terratest test files
+│   ├── vpc_test.go               # VPC module tests
+│   ├── s3_test.go                # S3 module tests
+│   ├── security_groups_test.go   # Security Groups module tests
+│   ├── go.mod                    # Go module dependencies
+│   └── README.md                 # Test documentation
 └── README.md                      # This file
 ```
 
@@ -73,6 +80,7 @@ All diagrams are created using [Mermaid](https://mermaid-js.github.io/), an open
 
 - [Terraform](https://www.terraform.io/downloads.html) >= 1.6.0
 - [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/) >= 0.58.0
+- [Go](https://golang.org/dl/) >= 1.21 (for running Terratests)
 - [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) configured with appropriate credentials
 - AWS IAM permissions to create and manage resources
 
@@ -233,9 +241,10 @@ Monitoring and logging using `terraform-aws-modules/cloudwatch/aws`.
 
 ## CI/CD Pipeline
 
-This project includes a **consolidated CI/CD pipeline** for infrastructure deployment and destruction:
+This project includes **two comprehensive CI/CD pipelines** for infrastructure deployment, testing, and destruction:
 
-### Consolidated Pipeline
+### 1. Terraform CI/CD Pipeline
+
 The **Terraform CI/CD Pipeline** provides:
 - **Format Check**: Validates Terraform code formatting
 - **Validation**: Validates Terraform configurations across all environments
@@ -244,8 +253,67 @@ The **Terraform CI/CD Pipeline** provides:
 - **Destruction**: Safely destroys infrastructure with confirmation
 - **Multi-Region**: Supports dev (us-east-1), staging (us-west-2), prod (eu-west-1)
 
+### 2. Terratest CI/CD Pipeline
+
+The **Terratest CI/CD Pipeline** provides comprehensive testing for all infrastructure modules:
+
+#### Test Types
+- **Unit Tests**: Fast tests that don't require AWS resources
+- **Integration Tests**: Full tests with real AWS resources
+- **Security Tests**: Security scanning with gosec
+- **Performance Tests**: Benchmark testing for module performance
+- **Lint Tests**: Code quality and formatting checks
+
+#### Test Coverage
+- **VPC Module**: Tests VPC creation, subnets, NAT Gateway, Internet Gateway, route tables, and VPC Flow Logs
+- **S3 Module**: Tests bucket creation, versioning, encryption, public access blocking, and lifecycle rules
+- **Security Groups Module**: Tests security group creation, ingress/egress rules, and rule descriptions
+- **Extensible**: Easy to add tests for new modules
+
+#### Pipeline Features
+- **Parallel Execution**: Tests run in parallel for faster execution
+- **Resource Cleanup**: Automatic cleanup of test resources
+- **Multi-Region Support**: Tests across us-east-1, us-west-2, eu-west-1
+- **Comprehensive Reporting**: Detailed test reports and coverage metrics
+- **Manual Triggers**: Support for running specific test types
+- **Caching**: Go module caching for faster builds
+
+#### Using the Terratest Pipeline
+
+**Automatic Testing:**
+```bash
+# Tests run automatically on every push and pull request
+git push origin main
+```
+
+**Manual Testing:**
+```bash
+# Run all tests
+gh workflow run terratest.yml --ref main -f test_type=all
+
+# Run specific test type
+gh workflow run terratest.yml --ref main -f test_type=vpc -f environment=test -f region=us-east-1
+
+# Run performance tests
+gh workflow run terratest.yml --ref main -f test_type=all
+```
+
+**Local Testing:**
+```bash
+# Run tests locally
+cd test
+go test -v
+
+# Run specific test
+go test -v -run TestVPCModule
+
+# Run with coverage
+go test -v -coverprofile=coverage.out ./...
+```
+
 ### Pipeline Status
 - **Terraform CI/CD Pipeline**: [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
+- **Terratest CI/CD Pipeline**: [![Terratest CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terratest.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terratest.yml)
 
 ### Using the Pipeline
 

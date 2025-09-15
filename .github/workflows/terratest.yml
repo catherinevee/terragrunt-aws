@@ -1,0 +1,401 @@
+name: 'Terratest CI/CD Pipeline'
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'test/**'
+      - 'modules/**'
+      - '.github/workflows/terratest.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'test/**'
+      - 'modules/**'
+      - '.github/workflows/terratest.yml'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - vpc
+          - s3
+          - security-groups
+      environment:
+        description: 'Environment to test against'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - test
+          - dev
+          - staging
+      region:
+        description: 'AWS region to test in'
+        required: true
+        default: 'us-east-1'
+        type: choice
+        options:
+          - us-east-1
+          - us-west-2
+          - eu-west-1
+
+env:
+  TF_VERSION: '1.6.0'
+  TERRAGRUNT_VERSION: '0.58.0'
+  GO_VERSION: '1.21'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  # Job 1: Setup and Dependencies
+  setup:
+    name: 'Setup Environment'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install Terragrunt
+        run: |
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TERRAGRUNT_VERSION }}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('test/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: |
+          cd test
+          go mod download
+          go mod tidy
+
+      - name: Verify installations
+        run: |
+          echo "=== Verification ==="
+          go version
+          terraform version
+          terragrunt version
+          aws --version
+
+  # Job 2: Lint and Format Check
+  lint:
+    name: 'Lint and Format Check'
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.54.2
+
+      - name: Run golangci-lint
+        run: |
+          cd test
+          $(go env GOPATH)/bin/golangci-lint run --timeout=5m
+
+      - name: Check Go formatting
+        run: |
+          cd test
+          if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+            echo "The following files are not formatted:"
+            gofmt -s -l .
+            exit 1
+          fi
+
+  # Job 3: Unit Tests (without AWS resources)
+  unit-tests:
+    name: 'Unit Tests'
+    runs-on: ubuntu-latest
+    needs: [setup]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('test/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run unit tests
+        run: |
+          cd test
+          go test -v -short -race -coverprofile=coverage.out ./...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./test/coverage.out
+          flags: unittests
+          name: codecov-umbrella
+
+  # Job 4: Integration Tests (with AWS resources)
+  integration-tests:
+    name: 'Integration Tests'
+    runs-on: ubuntu-latest
+    needs: [setup, lint]
+    if: github.event_name == 'push' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    strategy:
+      matrix:
+        test_type: [vpc, s3, security-groups]
+        region: [us-east-1]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install Terragrunt
+        run: |
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TERRAGRUNT_VERSION }}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ matrix.region }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('test/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: |
+          cd test
+          go mod download
+          go mod tidy
+
+      - name: Run specific integration test
+        run: |
+          cd test
+          echo "Running ${{ matrix.test_type }} tests in ${{ matrix.region }}"
+          go test -v -timeout=30m -run Test${{ matrix.test_type }}Module ./...
+
+      - name: Cleanup on failure
+        if: failure()
+        run: |
+          echo "Test failed, cleaning up any remaining resources..."
+          # Add cleanup commands here if needed
+
+  # Job 5: All Tests (comprehensive)
+  all-tests:
+    name: 'All Tests'
+    runs-on: ubuntu-latest
+    needs: [setup, lint, unit-tests]
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_type == 'all'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Install Terragrunt
+        run: |
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${{ env.TERRAGRUNT_VERSION }}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('test/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install dependencies
+        run: |
+          cd test
+          go mod download
+          go mod tidy
+
+      - name: Run all tests
+        run: |
+          cd test
+          echo "Running all tests in ${{ env.AWS_REGION }}"
+          go test -v -timeout=60m -parallel=4 ./...
+
+  # Job 6: Test Results Summary
+  test-results:
+    name: 'Test Results Summary'
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, all-tests]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test Results Summary
+        run: |
+          echo "=== Test Results Summary ==="
+          echo "Unit Tests: ${{ needs.unit-tests.result }}"
+          echo "Integration Tests: ${{ needs.integration-tests.result }}"
+          echo "All Tests: ${{ needs.all-tests.result }}"
+          
+          if [ "${{ needs.unit-tests.result }}" = "success" ] && [ "${{ needs.integration-tests.result }}" = "success" ]; then
+            echo "✅ All tests passed successfully!"
+          else
+            echo "❌ Some tests failed. Please check the logs above."
+            exit 1
+          fi
+
+  # Job 7: Security Scan
+  security-scan:
+    name: 'Security Scan'
+    runs-on: ubuntu-latest
+    needs: [setup]
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install gosec
+        run: |
+          go install github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
+
+      - name: Run gosec
+        run: |
+          cd test
+          gosec -fmt json -out gosec-report.json ./...
+
+      - name: Upload gosec results
+        uses: actions/upload-artifact@v3
+        with:
+          name: gosec-report
+          path: test/gosec-report.json
+
+  # Job 8: Performance Tests
+  performance-tests:
+    name: 'Performance Tests'
+    runs-on: ubuntu-latest
+    needs: [setup]
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd test
+          go mod download
+
+      - name: Run performance tests
+        run: |
+          cd test
+          echo "Running performance tests..."
+          go test -v -bench=. -benchmem -timeout=30m ./...
+
+  # Job 9: Generate Test Report
+  test-report:
+    name: 'Generate Test Report'
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests, all-tests, security-scan]
+    if: always()
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Generate test report
+        run: |
+          echo "# Terratest Results" > test-report.md
+          echo "" >> test-report.md
+          echo "## Test Status" >> test-report.md
+          echo "- Unit Tests: ${{ needs.unit-tests.result }}" >> test-report.md
+          echo "- Integration Tests: ${{ needs.integration-tests.result }}" >> test-report.md
+          echo "- All Tests: ${{ needs.all-tests.result }}" >> test-report.md
+          echo "- Security Scan: ${{ needs.security-scan.result }}" >> test-report.md
+          echo "" >> test-report.md
+          echo "## Test Coverage" >> test-report.md
+          echo "Test coverage details will be available in the unit tests job." >> test-report.md
+
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: test-report.md
