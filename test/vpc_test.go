@@ -25,13 +25,13 @@ func TestVPCModule(t *testing.T) {
 	case "us-east-2":
 		availabilityZones = []string{"us-east-2a", "us-east-2b"}
 	case "us-west-1":
-		availabilityZones = []string{"us-west-1a", "us-west-1b"}
+		availabilityZones = []string{"us-west-1a", "us-west-1c"}
 	case "us-west-2":
 		availabilityZones = []string{"us-west-2a", "us-west-2b"}
 	case "eu-west-1":
 		availabilityZones = []string{"eu-west-1a", "eu-west-1b"}
 	default:
-		availabilityZones = []string{"us-west-1a", "us-west-1b"}
+		availabilityZones = []string{"us-west-1a", "us-west-1c"}
 	}
 
 	// Temporarily rename versions.tf to avoid backend conflict
