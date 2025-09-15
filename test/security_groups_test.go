@@ -44,6 +44,13 @@ func TestSecurityGroupsModule(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to backup versions.tf: %v", err)
 	}
+
+	// Restore the original versions.tf file at the end
+	defer func() {
+		if err := os.Rename(versionsBackup, versionsFile); err != nil {
+			t.Logf("Warning: Failed to restore versions.tf: %v", err)
+		}
+	}()
 	defer func() {
 		if err := os.Rename(versionsBackup, versionsFile); err != nil {
 			t.Logf("Warning: Failed to restore versions.tf: %v", err)
