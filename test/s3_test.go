@@ -39,6 +39,9 @@ func TestS3Module(t *testing.T) {
 			"block_public_policy":     true,
 			"ignore_public_acls":      true,
 			"restrict_public_buckets": true,
+			"logging":                 map[string]interface{}{},
+			"website":                 map[string]interface{}{},
+			"replication_configuration": map[string]interface{}{},
 			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
