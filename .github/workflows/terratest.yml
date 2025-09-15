@@ -174,7 +174,13 @@ jobs:
         working-directory: ${{ env.TERRATEST_DIR }}
         run: |
           echo "Running unit tests..."
-          go test -v -short -race -coverprofile=coverage.out ./...
+          # Run each test individually to avoid file conflicts
+          echo "Running VPC test..."
+          go test -v -short -race -run "TestVPC.*" ./...
+          echo "Running S3 test..."
+          go test -v -short -race -run "TestS3.*" ./...
+          echo "Running Security Groups test..."
+          go test -v -short -race -run "TestSecurityGroups.*" ./...
           echo "Unit tests completed successfully"
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
