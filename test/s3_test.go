@@ -1,6 +1,7 @@
 package test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/aws"
@@ -11,8 +12,11 @@ import (
 func TestS3Module(t *testing.T) {
 	t.Parallel()
 
-	// AWS region to test in
-	awsRegion := "us-east-1"
+	// Get the AWS region from environment variable or use default
+	awsRegion := os.Getenv("AWS_DEFAULT_REGION")
+	if awsRegion == "" {
+		awsRegion = "us-west-2"
+	}
 
 	// Generate a unique bucket name
 	bucketName := "test-terragrunt-aws-bucket-12345"

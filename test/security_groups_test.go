@@ -11,8 +11,24 @@ import (
 func TestSecurityGroupsModule(t *testing.T) {
 	t.Parallel()
 
-	// AWS region to test in
-	awsRegion := "us-east-1"
+	// Get the AWS region from environment variable or use default
+	awsRegion := os.Getenv("AWS_DEFAULT_REGION")
+	if awsRegion == "" {
+		awsRegion = "us-west-2"
+	}
+
+	// Set availability zones based on region
+	var availabilityZones []string
+	switch awsRegion {
+	case "us-east-1":
+		availabilityZones = []string{"us-east-1a", "us-east-1b"}
+	case "us-west-2":
+		availabilityZones = []string{"us-west-2a", "us-west-2b"}
+	case "eu-west-1":
+		availabilityZones = []string{"eu-west-1a", "eu-west-1b"}
+	default:
+		availabilityZones = []string{"us-west-2a", "us-west-2b"}
+	}
 
 	// First create a VPC for the security group to attach to
 	// Temporarily rename versions.tf to avoid backend conflict
@@ -62,7 +78,7 @@ terraform {
 		Vars: map[string]interface{}{
 			"environment":          "test",
 			"cidr_block":           "10.10.0.0/16",
-			"availability_zones":   []string{"us-east-1a"},
+			"availability_zones":   []string{availabilityZones[0]},
 			"private_subnet_cidrs": []string{"10.10.1.0/24"},
 			"public_subnet_cidrs":  []string{"10.10.101.0/24"},
 			"enable_nat_gateway":   false,

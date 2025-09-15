@@ -11,8 +11,24 @@ import (
 func TestVPCModule(t *testing.T) {
 	t.Parallel()
 
-	// AWS region to test in
-	awsRegion := "us-east-1"
+	// Get the AWS region from environment variable or use default
+	awsRegion := os.Getenv("AWS_DEFAULT_REGION")
+	if awsRegion == "" {
+		awsRegion = "us-west-2"
+	}
+
+	// Set availability zones based on region
+	var availabilityZones []string
+	switch awsRegion {
+	case "us-east-1":
+		availabilityZones = []string{"us-east-1a", "us-east-1b"}
+	case "us-west-2":
+		availabilityZones = []string{"us-west-2a", "us-west-2b"}
+	case "eu-west-1":
+		availabilityZones = []string{"eu-west-1a", "eu-west-1b"}
+	default:
+		availabilityZones = []string{"us-west-2a", "us-west-2b"}
+	}
 
 	// Temporarily rename versions.tf to avoid backend conflict
 	versionsFile := "../modules/vpc/versions.tf"
@@ -65,7 +81,7 @@ terraform {
 		Vars: map[string]interface{}{
 			"environment":          "test",
 			"cidr_block":           "10.0.0.0/16",
-			"availability_zones":   []string{"us-east-1a", "us-east-1b"},
+			"availability_zones":   availabilityZones,
 			"private_subnet_cidrs": []string{"10.0.1.0/24", "10.0.2.0/24"},
 			"public_subnet_cidrs":  []string{"10.0.101.0/24", "10.0.102.0/24"},
 			"enable_nat_gateway":   true,
