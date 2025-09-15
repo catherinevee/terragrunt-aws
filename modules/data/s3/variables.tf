@@ -141,8 +141,8 @@ variable "intelligent_tiering" {
 variable "logging" {
   description = "Logging configuration"
   type = object({
-    target_bucket = string
-    target_prefix = string
+    target_bucket = optional(string)
+    target_prefix = optional(string)
   })
   default = {}
 }
@@ -150,27 +150,27 @@ variable "logging" {
 variable "replication_configuration" {
   description = "Replication configuration"
   type = object({
-    role = string
-    rules = list(object({
-      id     = string
-      status = string
-      filter = object({
-        prefix = string
-        tags   = map(string)
-      })
-      destination = object({
-        bucket             = string
-        storage_class      = string
-        replica_kms_key_id = string
-        account_id         = string
-        access_control_translation = object({
-          owner = string
-        })
-        metrics = object({
-          status = string
-        })
-      })
-    }))
+    role = optional(string)
+    rules = optional(list(object({
+      id     = optional(string)
+      status = optional(string)
+      filter = optional(object({
+        prefix = optional(string)
+        tags   = optional(map(string))
+      }))
+      destination = optional(object({
+        bucket             = optional(string)
+        storage_class      = optional(string)
+        replica_kms_key_id = optional(string)
+        account_id         = optional(string)
+        access_control_translation = optional(object({
+          owner = optional(string)
+        }))
+        metrics = optional(object({
+          status = optional(string)
+        }))
+      }))
+    })))
   })
   default = {}
 }
@@ -203,9 +203,9 @@ variable "notification" {
 variable "website" {
   description = "Website configuration"
   type = object({
-    index_document = string
-    error_document = string
-    routing_rules  = string
+    index_document = optional(string)
+    error_document = optional(string)
+    routing_rules  = optional(string)
   })
   default = {}
 }
