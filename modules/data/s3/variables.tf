@@ -248,3 +248,21 @@ variable "common_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "logging" {
+  description = "S3 bucket logging configuration"
+  type        = map(string)
+  default     = {}
+}
+
+variable "website" {
+  description = "S3 bucket website configuration"
+  type        = map(string)
+  default     = {}
+}
+
+variable "replication_configuration" {
+  description = "S3 bucket replication configuration"
+  type        = map(string)
+  default     = {}
+}
