@@ -2,6 +2,7 @@
 
 [![Terraform CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
 [![Terratest CI/CD Pipeline](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terratest.yml/badge.svg)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terratest.yml)
+[![Infrastructure Status](https://img.shields.io/badge/Infrastructure-Destroyed-red?style=flat-square&logo=aws&logoColor=white)](https://github.com/catherinevee/terragrunt-aws/actions/workflows/terraform.yml)
 [![Terraform](https://img.shields.io/badge/terraform-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terraform.io/)
 [![Terragrunt](https://img.shields.io/badge/terragrunt-%235835CC.svg?style=flat&logo=terraform&logoColor=white)](https://terragrunt.gruntwork.io/)
 [![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=flat&logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
