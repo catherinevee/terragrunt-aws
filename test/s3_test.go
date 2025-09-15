@@ -39,6 +39,32 @@ func TestS3Module(t *testing.T) {
 			"block_public_policy":     true,
 			"ignore_public_acls":      true,
 			"restrict_public_buckets": true,
+			"logging": map[string]interface{}{
+				"target_bucket": "test-logging-bucket",
+				"target_prefix": "logs/",
+			},
+			"website": map[string]interface{}{
+				"index_document": "index.html",
+				"error_document": "error.html",
+				"routing_rules":  []interface{}{},
+			},
+			"replication_configuration": map[string]interface{}{
+				"role": "arn:aws:iam::123456789012:role/replication-role",
+				"rules": []interface{}{
+					map[string]interface{}{
+						"id":     "test-rule",
+						"status": "Enabled",
+						"filter": map[string]interface{}{
+							"prefix": "test/",
+							"tags":   map[string]string{},
+						},
+						"destination": map[string]interface{}{
+							"bucket":        "test-destination-bucket",
+							"storage_class": "STANDARD",
+						},
+					},
+				},
+			},
 			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
