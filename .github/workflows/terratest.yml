@@ -240,6 +240,13 @@ jobs:
           go mod download
           go mod tidy
           echo "Dependencies installed successfully"
+      - name: Clean up Terraform modules cache
+        working-directory: ${{ env.TERRATEST_DIR }}
+        run: |
+          echo "Cleaning up Terraform modules cache..."
+          find . -name ".terraform" -type d -exec rm -rf {} + 2>/dev/null || true
+          find . -name "terraform.tfstate*" -type f -delete 2>/dev/null || true
+          echo "Terraform modules cache cleaned up"
       - name: Run specific integration test
         working-directory: ${{ env.TERRATEST_DIR }}
         run: |
