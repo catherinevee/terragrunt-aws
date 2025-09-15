@@ -120,14 +120,14 @@ terraform {
 					"to_port":     80,
 					"protocol":    "tcp",
 					"description": "HTTP",
-					"cidr_blocks": "0.0.0.0/0",
+					"cidr_blocks": []string{"0.0.0.0/0"},
 				},
 				{
 					"from_port":   443,
 					"to_port":     443,
 					"protocol":    "tcp",
 					"description": "HTTPS",
-					"cidr_blocks": "0.0.0.0/0",
+					"cidr_blocks": []string{"0.0.0.0/0"},
 				},
 			},
 			"egress_with_cidr_blocks": []map[string]interface{}{
@@ -136,7 +136,7 @@ terraform {
 					"to_port":     0,
 					"protocol":    "-1",
 					"description": "All outbound traffic",
-					"cidr_blocks": "0.0.0.0/0",
+					"cidr_blocks": []string{"0.0.0.0/0"},
 				},
 			},
 			"common_tags": map[string]string{
