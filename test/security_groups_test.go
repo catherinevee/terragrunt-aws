@@ -16,16 +16,18 @@ func TestSecurityGroupsModule(t *testing.T) {
 	// First create a VPC for the security group to attach to
 	vpcTerraformOptions := &terraform.Options{
 		TerraformDir: "../modules/vpc",
+		// Use local backend for testing
+		BackendConfig: map[string]interface{}{
+			"backend": "local",
+		},
 		Vars: map[string]interface{}{
-			"name":        "test-vpc-for-sg",
-			"cidr":        "10.10.0.0/16",
-			"azs":         []string{"us-east-1a"},
-			"private_subnets": []string{"10.10.1.0/24"},
-			"public_subnets":  []string{"10.10.101.0/24"},
-			"enable_nat_gateway": false,
-			"enable_dns_hostnames": true,
-			"enable_dns_support":   true,
-			"tags": map[string]string{
+			"environment":            "test",
+			"cidr_block":            "10.10.0.0/16",
+			"availability_zones":    []string{"us-east-1a"},
+			"private_subnet_cidrs":  []string{"10.10.1.0/24"},
+			"public_subnet_cidrs":   []string{"10.10.101.0/24"},
+			"enable_nat_gateway":    false,
+			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
 				"ManagedBy":   "terratest",
@@ -44,9 +46,14 @@ func TestSecurityGroupsModule(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		// Path to the Security Groups module
 		TerraformDir: "../modules/networking/security-groups",
+		// Use local backend for testing
+		BackendConfig: map[string]interface{}{
+			"backend": "local",
+		},
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
+			"environment": "test",
 			"name":        "test-security-group",
 			"description": "Test security group for Terratest",
 			"vpc_id":      vpcId,
@@ -56,14 +63,14 @@ func TestSecurityGroupsModule(t *testing.T) {
 					"to_port":     80,
 					"protocol":    "tcp",
 					"description": "HTTP",
-					"cidr_blocks": "0.0.0.0/0",
+					"cidr_blocks": []string{"0.0.0.0/0"},
 				},
 				{
 					"from_port":   443,
 					"to_port":     443,
 					"protocol":    "tcp",
 					"description": "HTTPS",
-					"cidr_blocks": "0.0.0.0/0",
+					"cidr_blocks": []string{"0.0.0.0/0"},
 				},
 			},
 			"egress_with_cidr_blocks": []map[string]interface{}{
@@ -72,10 +79,10 @@ func TestSecurityGroupsModule(t *testing.T) {
 					"to_port":     0,
 					"protocol":    "-1",
 					"description": "All outbound traffic",
-					"cidr_blocks": "0.0.0.0/0",
+					"cidr_blocks": []string{"0.0.0.0/0"},
 				},
 			},
-			"tags": map[string]string{
+			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
 				"ManagedBy":   "terratest",

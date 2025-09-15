@@ -17,24 +17,22 @@ func TestVPCModule(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		// Path to the VPC module
 		TerraformDir: "../modules/vpc",
+		// Use local backend for testing
+		BackendConfig: map[string]interface{}{
+			"backend": "local",
+		},
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
-			"name":                                 "test-vpc",
-			"cidr":                                 "10.0.0.0/16",
-			"azs":                                  []string{"us-east-1a", "us-east-1b"},
-			"private_subnets":                      []string{"10.0.1.0/24", "10.0.2.0/24"},
-			"public_subnets":                       []string{"10.0.101.0/24", "10.0.102.0/24"},
-			"enable_nat_gateway":                   true,
-			"single_nat_gateway":                   false,
-			"enable_dns_hostnames":                 true,
-			"enable_dns_support":                   true,
-			"enable_vpn_gateway":                   false,
-			"enable_dhcp_options":                  true,
-			"enable_flow_log":                      true,
-			"create_flow_log_cloudwatch_iam_role":  true,
-			"create_flow_log_cloudwatch_log_group": true,
-			"tags": map[string]string{
+			"environment":            "test",
+			"cidr_block":            "10.0.0.0/16",
+			"availability_zones":    []string{"us-east-1a", "us-east-1b"},
+			"private_subnet_cidrs":  []string{"10.0.1.0/24", "10.0.2.0/24"},
+			"public_subnet_cidrs":   []string{"10.0.101.0/24", "10.0.102.0/24"},
+			"enable_nat_gateway":    true,
+			"single_nat_gateway":    false,
+			"enable_flow_log":       true,
+			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
 				"ManagedBy":   "terratest",

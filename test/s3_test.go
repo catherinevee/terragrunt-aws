@@ -21,36 +21,44 @@ func TestS3Module(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		// Path to the S3 module
 		TerraformDir: "../modules/data/s3",
+		// Use local backend for testing
+		BackendConfig: map[string]interface{}{
+			"backend": "local",
+		},
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
-			"bucket": bucketName,
-			"versioning": map[string]interface{}{
-				"enabled": true,
-			},
+			"environment": "test",
+			"name":        bucketName,
+			"versioning_enabled": true,
 			"server_side_encryption_configuration": map[string]interface{}{
 				"rule": map[string]interface{}{
 					"apply_server_side_encryption_by_default": map[string]interface{}{
-						"sse_algorithm": "AES256",
+						"sse_algorithm":     "AES256",
+						"kms_master_key_id": nil,
 					},
+					"bucket_key_enabled": true,
 				},
 			},
-			"public_access_block": map[string]interface{}{
-				"block_public_acls":       true,
-				"block_public_policy":     true,
-				"ignore_public_acls":      true,
-				"restrict_public_buckets": true,
-			},
-			"lifecycle_rule": []map[string]interface{}{
+			"block_public_acls":       true,
+			"block_public_policy":     true,
+			"ignore_public_acls":      true,
+			"restrict_public_buckets": true,
+			"lifecycle_rules": []map[string]interface{}{
 				{
-					"id":     "test_lifecycle_rule",
-					"status": "Enabled",
+					"id":      "test_lifecycle_rule",
+					"status":  "Enabled",
+					"enabled": true,
+					"filter": map[string]interface{}{
+						"prefix": "",
+						"tags":   map[string]string{},
+					},
 					"expiration": map[string]interface{}{
 						"days": 30,
 					},
 				},
 			},
-			"tags": map[string]string{
+			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
 				"ManagedBy":   "terratest",
