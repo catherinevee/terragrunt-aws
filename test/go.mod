@@ -1,4 +1,4 @@
-module github.com/catherinevee/terragrunt-aws/test
+module terragrunt-aws/test
 
 go 1.21
 
