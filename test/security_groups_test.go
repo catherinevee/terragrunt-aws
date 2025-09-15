@@ -24,7 +24,11 @@ func TestSecurityGroupsModule(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to backup versions.tf: %v", err)
 	}
-	defer os.Rename(versionsBackup, versionsFile)
+	defer func() {
+		if err := os.Rename(versionsBackup, versionsFile); err != nil {
+			t.Logf("Warning: Failed to restore versions.tf: %v", err)
+		}
+	}()
 
 	// Create a temporary backend configuration file
 	backendConfig := `
