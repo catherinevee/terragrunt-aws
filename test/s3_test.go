@@ -28,9 +28,9 @@ func TestS3Module(t *testing.T) {
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
-			"environment":        "test",
-			"name":               bucketName,
-			"versioning_enabled": true,
+			"environment":             "test",
+			"name":                    bucketName,
+			"versioning_enabled":      true,
 			"block_public_acls":       true,
 			"block_public_policy":     true,
 			"ignore_public_acls":      true,
