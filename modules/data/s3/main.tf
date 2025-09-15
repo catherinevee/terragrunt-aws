@@ -32,17 +32,17 @@ module "s3_bucket" {
   # Intelligent tiering
   intelligent_tiering = var.intelligent_tiering
 
-  # Logging
-  logging = var.logging
+  # Logging - only pass if not empty
+  logging = length(keys(var.logging)) > 0 ? var.logging : null
 
-  # Replication
-  replication_configuration = var.replication_configuration
+  # Replication - only pass if not empty
+  replication_configuration = length(keys(var.replication_configuration)) > 0 ? var.replication_configuration : null
 
   # Notification - Commented out as not supported by AWS S3 module
   # notification = var.notification
 
-  # Website configuration
-  website = var.website
+  # Website configuration - only pass if not empty
+  website = length(keys(var.website)) > 0 ? var.website : null
 
   # CORS configuration
   cors_rule = var.cors_rule
