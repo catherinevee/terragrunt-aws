@@ -164,9 +164,14 @@ terraform {
 	securityGroupArn := terraform.Output(t, terraformOptions, "security_group_arn")
 	assert.NotEmpty(t, securityGroupArn, "Security group ARN should not be empty")
 
-	// Verify security group ID is not empty
+	// Get the security group name
+	securityGroupName := terraform.Output(t, terraformOptions, "security_group_name")
+	assert.NotEmpty(t, securityGroupName, "Security group name should not be empty")
+
+	// Verify security group properties
 	assert.NotEmpty(t, securityGroupId, "Security group ID should not be empty")
 	assert.NotEmpty(t, securityGroupArn, "Security group ARN should not be empty")
+	assert.NotEmpty(t, securityGroupName, "Security group name should not be empty")
 
 	// Verify the security group ID follows the expected format
 	assert.Contains(t, securityGroupId, "sg-", "Security group ID should start with 'sg-'")

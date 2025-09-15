@@ -30,15 +30,8 @@ output "security_group_description" {
   value       = module.security_groups.security_group_description
 }
 
-output "security_group_ingress" {
-  description = "List of ingress rules"
-  value       = module.security_groups.security_group_ingress
-}
-
-output "security_group_egress" {
-  description = "List of egress rules"
-  value       = module.security_groups.security_group_egress
-}
+# Note: security_group_ingress and security_group_egress are not available in the terraform-aws-modules/security-group/aws module
+# These outputs have been removed to avoid errors
 
 output "additional_security_group_ids" {
   description = "Map of additional security group IDs"

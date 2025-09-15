@@ -32,15 +32,15 @@ func TestS3Module(t *testing.T) {
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
-			"environment":             "test",
-			"name":                    bucketName,
-			"versioning_enabled":      true,
-			"block_public_acls":       true,
-			"block_public_policy":     true,
-			"ignore_public_acls":      true,
-			"restrict_public_buckets": true,
-			"logging":                 map[string]interface{}{},
-			"website":                 map[string]interface{}{},
+			"environment":               "test",
+			"name":                      bucketName,
+			"versioning_enabled":        true,
+			"block_public_acls":         true,
+			"block_public_policy":       true,
+			"ignore_public_acls":        true,
+			"restrict_public_buckets":   true,
+			"logging":                   map[string]interface{}{},
+			"website":                   map[string]interface{}{},
 			"replication_configuration": map[string]interface{}{},
 			"common_tags": map[string]string{
 				"Environment": "test",
