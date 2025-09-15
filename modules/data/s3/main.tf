@@ -38,8 +38,8 @@ module "s3_bucket" {
   # Replication
   replication_configuration = var.replication_configuration
 
-  # Notification
-  notification = var.notification
+  # Notification - Commented out as not supported by AWS S3 module
+  # notification = var.notification
 
   # Website configuration
   website = var.website

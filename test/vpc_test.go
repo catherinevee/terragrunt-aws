@@ -19,19 +19,19 @@ func TestVPCModule(t *testing.T) {
 		TerraformDir: "../modules/vpc",
 		// Use local backend for testing
 		BackendConfig: map[string]interface{}{
-			"backend": "local",
+			"path": "terraform.tfstate",
 		},
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
-			"environment":            "test",
-			"cidr_block":            "10.0.0.0/16",
-			"availability_zones":    []string{"us-east-1a", "us-east-1b"},
-			"private_subnet_cidrs":  []string{"10.0.1.0/24", "10.0.2.0/24"},
-			"public_subnet_cidrs":   []string{"10.0.101.0/24", "10.0.102.0/24"},
-			"enable_nat_gateway":    true,
-			"single_nat_gateway":    false,
-			"enable_flow_log":       true,
+			"environment":          "test",
+			"cidr_block":           "10.0.0.0/16",
+			"availability_zones":   []string{"us-east-1a", "us-east-1b"},
+			"private_subnet_cidrs": []string{"10.0.1.0/24", "10.0.2.0/24"},
+			"public_subnet_cidrs":  []string{"10.0.101.0/24", "10.0.102.0/24"},
+			"enable_nat_gateway":   true,
+			"single_nat_gateway":   false,
+			"enable_flow_log":      true,
 			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",

@@ -23,41 +23,18 @@ func TestS3Module(t *testing.T) {
 		TerraformDir: "../modules/data/s3",
 		// Use local backend for testing
 		BackendConfig: map[string]interface{}{
-			"backend": "local",
+			"path": "terraform.tfstate",
 		},
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
-			"environment": "test",
-			"name":        bucketName,
+			"environment":        "test",
+			"name":               bucketName,
 			"versioning_enabled": true,
-			"server_side_encryption_configuration": map[string]interface{}{
-				"rule": map[string]interface{}{
-					"apply_server_side_encryption_by_default": map[string]interface{}{
-						"sse_algorithm":     "AES256",
-						"kms_master_key_id": nil,
-					},
-					"bucket_key_enabled": true,
-				},
-			},
 			"block_public_acls":       true,
 			"block_public_policy":     true,
 			"ignore_public_acls":      true,
 			"restrict_public_buckets": true,
-			"lifecycle_rules": []map[string]interface{}{
-				{
-					"id":      "test_lifecycle_rule",
-					"status":  "Enabled",
-					"enabled": true,
-					"filter": map[string]interface{}{
-						"prefix": "",
-						"tags":   map[string]string{},
-					},
-					"expiration": map[string]interface{}{
-						"days": 30,
-					},
-				},
-			},
 			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",

@@ -18,15 +18,15 @@ func TestSecurityGroupsModule(t *testing.T) {
 		TerraformDir: "../modules/vpc",
 		// Use local backend for testing
 		BackendConfig: map[string]interface{}{
-			"backend": "local",
+			"path": "terraform.tfstate",
 		},
 		Vars: map[string]interface{}{
-			"environment":            "test",
-			"cidr_block":            "10.10.0.0/16",
-			"availability_zones":    []string{"us-east-1a"},
-			"private_subnet_cidrs":  []string{"10.10.1.0/24"},
-			"public_subnet_cidrs":   []string{"10.10.101.0/24"},
-			"enable_nat_gateway":    false,
+			"environment":          "test",
+			"cidr_block":           "10.10.0.0/16",
+			"availability_zones":   []string{"us-east-1a"},
+			"private_subnet_cidrs": []string{"10.10.1.0/24"},
+			"public_subnet_cidrs":  []string{"10.10.101.0/24"},
+			"enable_nat_gateway":   false,
 			"common_tags": map[string]string{
 				"Environment": "test",
 				"Project":     "terragrunt-aws",
@@ -48,7 +48,7 @@ func TestSecurityGroupsModule(t *testing.T) {
 		TerraformDir: "../modules/networking/security-groups",
 		// Use local backend for testing
 		BackendConfig: map[string]interface{}{
-			"backend": "local",
+			"path": "terraform.tfstate",
 		},
 
 		// Variables to pass to the module
