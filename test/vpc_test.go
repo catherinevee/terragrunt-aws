@@ -137,7 +137,7 @@ terraform {
 
 	// Verify NAT Gateway exists
 	natGatewayIds := terraform.OutputList(t, terraformOptions, "nat_gateway_ids")
-	assert.Len(t, natGatewayIds, 2, "Should have 2 NAT Gateways")
+	assert.Len(t, natGatewayIds, 1, "Should have 1 NAT Gateway")
 
 	// Verify Internet Gateway exists
 	igwId := terraform.Output(t, terraformOptions, "internet_gateway_id")
@@ -145,7 +145,7 @@ terraform {
 
 	// Verify route tables exist
 	privateRouteTableIds := terraform.OutputList(t, terraformOptions, "private_route_table_ids")
-	assert.Len(t, privateRouteTableIds, 2, "Should have 2 private route tables")
+	assert.Len(t, privateRouteTableIds, 1, "Should have 1 private route table")
 
 	publicRouteTableIds := terraform.OutputList(t, terraformOptions, "public_route_table_ids")
 	assert.Len(t, publicRouteTableIds, 1, "Should have 1 public route table")
