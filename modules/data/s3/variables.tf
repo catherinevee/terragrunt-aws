@@ -144,7 +144,7 @@ variable "logging" {
     target_bucket = string
     target_prefix = string
   })
-  default = null
+  default = {}
 }
 
 variable "replication_configuration" {
@@ -172,7 +172,7 @@ variable "replication_configuration" {
       })
     }))
   })
-  default = null
+  default = {}
 }
 
 variable "notification" {
@@ -207,7 +207,7 @@ variable "website" {
     error_document = string
     routing_rules  = string
   })
-  default = null
+  default = {}
 }
 
 variable "cors_rule" {
@@ -245,24 +245,6 @@ variable "additional_bucket_policies" {
 
 variable "common_tags" {
   description = "Common tags to be applied to all resources"
-  type        = map(string)
-  default     = {}
-}
-
-variable "logging" {
-  description = "S3 bucket logging configuration"
-  type        = map(string)
-  default     = {}
-}
-
-variable "website" {
-  description = "S3 bucket website configuration"
-  type        = map(string)
-  default     = {}
-}
-
-variable "replication_configuration" {
-  description = "S3 bucket replication configuration"
   type        = map(string)
   default     = {}
 }
