@@ -204,6 +204,7 @@ jobs:
           - environment: test
             region: us-west-1
             test_name: SecurityGroups
+      max-parallel: 1
     steps:
       - name: Checkout
         uses: actions/checkout@v4
