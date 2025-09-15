@@ -22,7 +22,6 @@ terragrunt.hcl.bak
 Thumbs.db
 
 # Test directories
-test/
 temp/
 
 # Logs
