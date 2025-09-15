@@ -14,7 +14,7 @@ func TestSecurityGroupsModule(t *testing.T) {
 	// Get the AWS region from environment variable or use default
 	awsRegion := os.Getenv("AWS_DEFAULT_REGION")
 	if awsRegion == "" {
-		awsRegion = "us-west-2"
+		awsRegion = "us-east-2"
 	}
 
 	// Set availability zones based on region
@@ -22,12 +22,14 @@ func TestSecurityGroupsModule(t *testing.T) {
 	switch awsRegion {
 	case "us-east-1":
 		availabilityZones = []string{"us-east-1a", "us-east-1b"}
+	case "us-east-2":
+		availabilityZones = []string{"us-east-2a", "us-east-2b"}
 	case "us-west-2":
 		availabilityZones = []string{"us-west-2a", "us-west-2b"}
 	case "eu-west-1":
 		availabilityZones = []string{"eu-west-1a", "eu-west-1b"}
 	default:
-		availabilityZones = []string{"us-west-2a", "us-west-2b"}
+		availabilityZones = []string{"us-east-2a", "us-east-2b"}
 	}
 
 	// First create a VPC for the security group to attach to
