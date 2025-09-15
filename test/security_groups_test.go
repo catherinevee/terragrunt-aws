@@ -1,6 +1,7 @@
 package test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -14,12 +15,46 @@ func TestSecurityGroupsModule(t *testing.T) {
 	awsRegion := "us-east-1"
 
 	// First create a VPC for the security group to attach to
+	// Temporarily rename versions.tf to avoid backend conflict
+	versionsFile := "../modules/vpc/versions.tf"
+	versionsBackup := "../modules/vpc/versions.tf.backup"
+	
+	// Backup the original versions.tf
+	err := os.Rename(versionsFile, versionsBackup)
+	if err != nil {
+		t.Fatalf("Failed to backup versions.tf: %v", err)
+	}
+	defer os.Rename(versionsBackup, versionsFile)
+
+	// Create a temporary backend configuration file
+	backendConfig := `
+terraform {
+  required_version = ">= 1.0.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  backend "local" {
+    path = "terraform.tfstate"
+  }
+}
+`
+
+	// Write the backend config to a temporary file
+	backendConfigFile := "../modules/vpc/versions.tf"
+	err = os.WriteFile(backendConfigFile, []byte(backendConfig), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create backend config file: %v", err)
+	}
+
 	vpcTerraformOptions := &terraform.Options{
 		TerraformDir: "../modules/vpc",
-		// Use local backend for testing
-		BackendConfig: map[string]interface{}{
-			"path": "terraform.tfstate",
-		},
+		// Force reconfiguration to use local backend
+		Reconfigure: true,
 		Vars: map[string]interface{}{
 			"environment":          "test",
 			"cidr_block":           "10.10.0.0/16",
@@ -46,10 +81,8 @@ func TestSecurityGroupsModule(t *testing.T) {
 	terraformOptions := &terraform.Options{
 		// Path to the Security Groups module
 		TerraformDir: "../modules/networking/security-groups",
-		// Use local backend for testing
-		BackendConfig: map[string]interface{}{
-			"path": "terraform.tfstate",
-		},
+		// Force reconfiguration to use local backend
+		Reconfigure: true,
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{

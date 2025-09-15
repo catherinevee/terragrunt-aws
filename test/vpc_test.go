@@ -1,6 +1,7 @@
 package test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -13,14 +14,48 @@ func TestVPCModule(t *testing.T) {
 	// AWS region to test in
 	awsRegion := "us-east-1"
 
+	// Temporarily rename versions.tf to avoid backend conflict
+	versionsFile := "../modules/vpc/versions.tf"
+	versionsBackup := "../modules/vpc/versions.tf.backup"
+	
+	// Backup the original versions.tf
+	err := os.Rename(versionsFile, versionsBackup)
+	if err != nil {
+		t.Fatalf("Failed to backup versions.tf: %v", err)
+	}
+	defer os.Rename(versionsBackup, versionsFile)
+
+	// Create a temporary backend configuration file
+	backendConfig := `
+terraform {
+  required_version = ">= 1.0.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+
+  backend "local" {
+    path = "terraform.tfstate"
+  }
+}
+`
+
+	// Write the backend config to a temporary file
+	backendConfigFile := "../modules/vpc/versions.tf"
+	err = os.WriteFile(backendConfigFile, []byte(backendConfig), 0644)
+	if err != nil {
+		t.Fatalf("Failed to create backend config file: %v", err)
+	}
+
 	// Terraform options for the VPC module
 	terraformOptions := &terraform.Options{
 		// Path to the VPC module
 		TerraformDir: "../modules/vpc",
-		// Use local backend for testing
-		BackendConfig: map[string]interface{}{
-			"path": "terraform.tfstate",
-		},
+		// Force reconfiguration to use local backend
+		Reconfigure: true,
 
 		// Variables to pass to the module
 		Vars: map[string]interface{}{
@@ -77,11 +112,11 @@ func TestVPCModule(t *testing.T) {
 	}
 
 	// Verify NAT Gateway exists
-	natGatewayId := terraform.Output(t, terraformOptions, "natgw_ids")
-	assert.NotEmpty(t, natGatewayId, "NAT Gateway ID should not be empty")
+	natGatewayIds := terraform.OutputList(t, terraformOptions, "nat_gateway_ids")
+	assert.Len(t, natGatewayIds, 2, "Should have 2 NAT Gateways")
 
 	// Verify Internet Gateway exists
-	igwId := terraform.Output(t, terraformOptions, "igw_id")
+	igwId := terraform.Output(t, terraformOptions, "internet_gateway_id")
 	assert.NotEmpty(t, igwId, "Internet Gateway ID should not be empty")
 
 	// Verify route tables exist
